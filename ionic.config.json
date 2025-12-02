@@ -1,0 +1,7 @@
+{
+  "name": "pwa-client",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

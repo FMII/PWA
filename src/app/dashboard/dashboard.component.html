@@ -1,0 +1,103 @@
+<div class="row min-vh-100">
+  <div class="col-md-2 p-0 border-end d-flex flex-column" id="minimalSidebar">
+    <div class="p-2 border-bottom text-center">
+      <p class="fw-bold mb-0">Encuestas</p>
+    </div>
+
+    <nav class="nav flex-column flex-grow-1 p-2">
+
+      <a class="nav-link active text-dark rounded-2 mb-1 py-1 px-3" aria-current="page" href="#">
+        <i class="bi bi-house-door-fill me-2"></i> Inicio
+      </a>
+
+      <a class="nav-link text-dark rounded-2 mb-1 py-1 px-3" href="#">
+        <i class="bi bi-gear-fill me-2"></i> Configuración
+      </a>
+
+      <a class="nav-link text-dark rounded-2 mb-1 py-1 px-3 d-flex justify-content-between align-items-center" href="#">
+        <div>
+          <i class="bi bi-bell-fill me-2"></i>
+          Notificaciones
+        </div>
+      </a>
+    </nav>
+  </div>
+
+  <div class="col-md-10">
+    <div class="row">
+      <div class="col-md-12 p-2 border-bottom">
+        <p class="mb-0">¡Bienvenido de vuelta!</p>
+      </div>
+      <div class="col-md-12 p-2 gray-color min-vh-100">
+        <div class="row g-3">
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                <p class="mb-0">Encuestas Totales</p>
+              </div>
+              <div class="card-body"></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                <p class="mb-0">Encuestas Activas</p>
+              </div>
+              <div class="card-body"></div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header">
+                <p class="mb-0">Encuestas Inactivas</p>
+              </div>
+              <div class="card-body"></div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <p class="mb-0">Gráfica</p>
+              </div>
+              <div class="card-body">
+
+              </div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center w-100">
+                <p class="mb-0">Tabla</p>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                  Launch demo modal
+                </button>
+              </div>
+              <div class="card-body">
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: se referencia con #exampleModal y se moverá al document.body en el componente -->
+<div class="modal fade" id="exampleModal" #exampleModal tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>

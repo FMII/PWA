@@ -1,0 +1,39 @@
+<div style="height:100vh; display:flex; align-items:center; justify-content:center; padding:16px;">
+    <div style="width:100%; max-width:420px;">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title text-center mb-4">Iniciar sesión</h5>
+
+                <form #loginForm="ngForm" (ngSubmit)="onSubmit(loginForm)" autocomplete="off" novalidate>
+                    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo</label>
+                        <input id="email" name="email" type="email" class="form-control" placeholder="tu@correo.com"
+                            required autocomplete="email" [(ngModel)]="credentials.email" #emailModel="ngModel">
+                        <div *ngIf="emailModel.invalid && emailModel.touched" class="mt-2 text-danger small">Correo
+                            válido requerido</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input id="password" name="password" type="password" class="form-control" placeholder="••••••••"
+                            required minlength="6" autocomplete="current-password" [(ngModel)]="credentials.password"
+                            #passwordModel="ngModel">
+                        <div *ngIf="passwordModel.invalid && passwordModel.touched" class="mt-2 text-danger small">
+                            Contraseña mínima 6 caracteres</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" [disabled]="loading || loginForm.invalid">
+                            <span *ngIf="loading" class="spinner-border spinner-border-sm me-2" role="status"
+                                aria-hidden="true"></span>
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>

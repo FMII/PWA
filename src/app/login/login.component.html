@@ -1,0 +1,41 @@
+<ion-content id="login-page">
+  <div class="wave-container">
+    <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+      <path fill="#973661" fill-opacity="1"
+        d="M0,224L48,229.3C96,235,192,245,288,234.7C384,224,480,192,576,192C672,192,768,224,864,213.3C960,203,1056,149,1152,149.3C1248,149,1344,203,1392,229.3L1440,256L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z">
+      </path>
+    </svg>
+  </div>
+
+  <div class="login-content ion-padding ion-text-center">
+    <div class="logo-container">
+      <ion-icon name="lock-closed-outline" size="large"></ion-icon>
+      <ion-text class="momo-signature-regular" style="color: #973661;">
+        <h1>Iniciar Sesión</h1>
+      </ion-text>
+    </div>
+
+    <ion-list lines="none" class="minimal-list">
+      <ion-item>
+        <ion-input label="Correo electrónico" label-placement="floating" type="email"
+          placeholder="ejemplo@dominio.com"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input label="Contraseña" label-placement="floating" type="password"
+          placeholder="Tu contraseña"></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <ion-button expand="block" class="ion-margin-top" style="--background: #973661; --background-activated: #c15485;">
+      Acceder
+    </ion-button>
+
+    <ion-button
+      expand="block"
+      class="ion-margin-top outline-button"
+    >
+      Regístrate
+    </ion-button>
+  </div>
+</ion-content>

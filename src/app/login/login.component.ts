@@ -16,7 +16,7 @@ import { AuthService } from '../services/auth.service';
 export class LoginComponent implements OnInit {
   email: string = '';
   password: string = '';
-  
+
   biometricAvailable: boolean = false;
   hasBiometricCredentials: boolean = false;
   isLoading: boolean = false;
@@ -33,7 +33,7 @@ export class LoginComponent implements OnInit {
     // Verificar si la biometría está disponible
     this.biometricAvailable = await this.biometricService.isPlatformAuthenticatorAvailable();
     this.hasBiometricCredentials = this.biometricService.hasRegisteredCredentials();
-    
+
     console.log('Biometric available:', this.biometricAvailable);
     console.log('Has credentials:', this.hasBiometricCredentials);
     console.log('Is Android:', this.biometricService.isAndroid());
@@ -52,19 +52,21 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
 
     try {
-      // Llamar a la API de login
       const response = await this.authService.login({
         email: this.email,
         password: this.password
       }).toPromise();
 
+      // 🔥 GUARDAR token + userId de manera segura
+      localStorage.setItem('authToken', response?.token ?? '');
+      localStorage.setItem('userId', String(response?.data?.id ?? ''));
+
+
       await this.showToast(`¡Bienvenido ${response?.data.firstName}! 👋`, 'success');
 
-      // Si el login es exitoso y la biometría está disponible, preguntar si quiere registrarla
       if (this.biometricAvailable && !this.hasBiometricCredentials) {
         await this.promptBiometricRegistration();
       } else {
-        // Redirigir al dashboard o home
         this.router.navigate(['/tabs']);
       }
 
@@ -76,6 +78,7 @@ export class LoginComponent implements OnInit {
       this.isLoading = false;
     }
   }
+
 
   /**
    * Preguntar al usuario si quiere registrar biometría
@@ -113,9 +116,9 @@ export class LoginComponent implements OnInit {
     try {
       // Usar el email como username y generar un userId único
       const userId = this.generateUserId(this.email);
-      
+
       const success = await this.biometricService.registerBiometric(this.email, userId);
-      
+
       if (success) {
         this.hasBiometricCredentials = true;
         await this.showToast('¡Autenticación biométrica activada! 🎉', 'success');
@@ -138,7 +141,7 @@ export class LoginComponent implements OnInit {
 
     try {
       const result = await this.biometricService.authenticateBiometric();
-      
+
       if (result.success) {
         await this.showToast(`¡Bienvenido ${result.username}! 👋`, 'success');
         // Aquí puedes validar con tu backend si es necesario

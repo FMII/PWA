@@ -6,12 +6,13 @@
 
     <nav class="nav flex-column flex-grow-1 p-2">
 
-      <a class="nav-link active text-dark rounded-2 mb-1 py-1 px-3" aria-current="page" href="#">
+      <a class="nav-link active text-dark rounded-2 mb-1 py-1 px-3" aria-current="page" href="/dashboard">
         <i class="bi bi-house-door-fill me-2"></i> Inicio
       </a>
 
-      <a class="nav-link text-dark rounded-2 mb-1 py-1 px-3" href="#">
-        <i class="bi bi-gear-fill me-2"></i> Configuración
+      <a class="nav-link text-dark rounded-2 mb-1 py-1 px-3" href="/polls">
+        <i class="bi bi-gear-fill me-2"></i> 
+        Encuestas
       </a>
 
       <a class="nav-link text-dark rounded-2 mb-1 py-1 px-3 d-flex justify-content-between align-items-center" href="#">
@@ -68,12 +69,35 @@
             <div class="card">
               <div class="card-header d-flex justify-content-between align-items-center w-100">
                 <p class="mb-0">Tabla</p>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                  Launch demo modal
-                </button>
+                <button class="btn btn-open" id="openModalBtn">Crear encuesta</button>
               </div>
-              <div class="card-body">
+              <div class="card-body p-0">
+                <table style="font-size: 14px;" class="table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Título</th>
+                      <th>Descripción</th>
+                      <th>Estado</th>
+                      <th></th>
+                    </tr>
+                  </thead>
 
+                  <tbody>
+                    <tr *ngFor="let poll of polls">
+                      <td>{{ poll.id }}</td>
+                      <td>{{ poll.title }}</td>
+                      <td>{{ poll.description }}</td>
+                      <td>{{ poll.status }}</td>
+                      <td>
+                        <button class="btn btn-warning btn-sm" (click)="openEditModal(poll)">
+                          Editar
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+
+                </table>
               </div>
             </div>
           </div>
@@ -83,21 +107,36 @@
   </div>
 </div>
 
-<!-- Modal: se referencia con #exampleModal y se moverá al document.body en el componente -->
-<div class="modal fade" id="exampleModal" #exampleModal tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
+<!-- MODAL -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+
+    <div class="modal-header">
+      <h2>Crear Encuesta</h2>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Título -->
+      <label for="title">Título</label>
+      <input type="text" id="title" maxlength="100" placeholder="Título de la encuesta">
+
+      <!-- Descripción -->
+      <label for="description">Descripción</label>
+      <textarea id="description" maxlength="255" placeholder="Describe la encuesta..."></textarea>
+
+      <!-- Estado -->
+      <label for="status">Estado</label>
+      <select id="status">
+        <option value="">Selecciona estado</option>
+        <option value="active">Activa</option>
+        <option value="inactive">Inactiva</option>
+      </select>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" id="closeModalBtn">Cancelar</button>
+      <button class="btn-open" id="createBtn">Crear</button>
     </div>
   </div>
 </div>

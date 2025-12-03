@@ -1,0 +1,62 @@
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Poll } from '../interfaces/poll';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class Polls {
+
+  private apiUrl = 'http://localhost:3000/api/polls';
+
+  constructor(private http: HttpClient) {}
+
+  // Helper para enviar token (si lo manejas desde localStorage)
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token') || '';
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+  }
+
+  // GET /api/polls
+  getAllPolls(): Observable<Poll[]> {
+    return this.http.get<Poll[]>(this.apiUrl, { headers: this.getHeaders() });
+  }
+
+  // GET /api/polls/:id
+  getPollById(id: number): Observable<Poll> {
+    return this.http.get<Poll>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  // POST /api/polls
+  createPoll(data: Partial<Poll>): Observable<Poll> {
+    return this.http.post<Poll>(this.apiUrl, data, { headers: this.getHeaders() });
+  }
+
+  // PUT /api/polls/:id
+  updatePoll(id: number, data: Partial<Poll>): Observable<Poll> {
+    return this.http.put<Poll>(`${this.apiUrl}/${id}`, data, { headers: this.getHeaders() });
+  }
+
+  // DELETE /api/polls/:id
+  deletePoll(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  // GET /api/polls/:id/questions
+  getPollQuestions(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${id}/questions`, { headers: this.getHeaders() });
+  }
+
+  // GET /api/polls/:id/responses
+  getPollResponses(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${id}/responses`, { headers: this.getHeaders() });
+  }
+
+  // GET /api/polls/user/:userId
+  getPollsByUser(userId: number): Observable<Poll[]> {
+    return this.http.get<Poll[]>(`${this.apiUrl}/user/${userId}`, { headers: this.getHeaders() });
+  }
+}

@@ -1,28 +1,110 @@
-.gray-color {
-    background: #fafafa;
-}
-.min-vh-100 {
-    min-height: 100vh;
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(3px);
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 
-.nav-link.active {
-    font-weight: bold;
+/* Caja del modal */
+.modal-content {
+  background: #fff;
+  border-radius: 14px;
+  width: 90%;
+  max-width: 620px;
+  padding: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  animation: fadeIn .2s ease-out;
 }
 
-.card
-{
-    border: 1px solid #eeeeee;
-    border-radius: 8px;
+/* Animación */
+@keyframes fadeIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
-.card-header
-{
-    background-color: transparent;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 5px 15px;
-    border-bottom: 1px solid #eeeeee;
+
+/* Header del modal */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
-.card-body
-{
-    padding: 10px;
+
+.modal-header h2 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+/* Inputs */
+.modal-body label {
+  display: block;
+  margin: 10px 0 4px;
+  font-size: 0.9rem;
+}
+
+.modal-body input,
+.modal-body select,
+.modal-body textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  transition: border 0.2s;
+}
+
+.modal-body input:focus,
+.modal-body textarea:focus,
+.modal-body select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Botones */
+.btn {
+  padding: 6px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.cancel {
+  background: #eee;
+}
+
+.create {
+  background: #007bff;
+  color: white;
+}
+
+.btn-open {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.card {
+  border: 1px solid #dfdfdf;
+}
+
+.card-header {
+  border-bottom: 1px solid #dfdfdf;
+  background-color: #f8f9fa;
 }

@@ -19,7 +19,7 @@ export class AdminLoginComponent implements OnInit {
   errorMessage = '';
 
   /** URL de login tomada de `src/environments/environment.ts` */
-  private apiLoginUrl = `${environment.apiUrl}/api/auth/login`;
+  private apiLoginUrl = `${environment.apiUrl}/auth/login`;
 
   constructor(private http: HttpClient, private router: Router) { }
 

@@ -1,0 +1,65 @@
+<div class="row min-vh-100">
+  <div class="col-md-2 p-0 border-end d-flex flex-column" id="minimalSidebar">
+    <div class="p-2 border-bottom text-center">
+      <p class="fw-bold mb-0">Encuestas</p>
+    </div>
+
+    <nav class="nav flex-column flex-grow-1 p-2">
+
+      <a class="nav-link active text-dark rounded-2 mb-1 py-1 px-3" aria-current="page" href="/dashboard">
+        <i class="bi bi-house-door-fill me-2"></i> Inicio
+      </a>
+
+      <a class="nav-link text-dark rounded-2 mb-1 py-1 px-3" href="/polls">
+        <i class="bi bi-gear-fill me-2"></i>
+        Encuestas
+      </a>
+
+      <a class="nav-link text-dark rounded-2 mb-1 py-1 px-3 d-flex justify-content-between align-items-center" href="#">
+        <div>
+          <i class="bi bi-bell-fill me-2"></i>
+          Notificaciones
+        </div>
+      </a>
+    </nav>
+  </div>
+  <div class="col-md-10">
+    <div class="row">
+      <div class="col-md-12 p-2 border-bottom">
+        <p class="mb-0">Encuestas</p>
+      </div>
+      <div class="col-md-12 p-3 pe-4">
+        <div class="row">
+          <div class="col-md-4 d-flex pb-4" *ngFor="let poll of polls">
+            <div class="card poll-card mb-4 shadow-sm flex-fill">
+
+              <!-- ENCABEZADO -->
+              <div class="card-header border-0 d-flex justify-content-between align-items-center">
+                <h5 class="m-0 fw-semibold">{{ poll.title }}</h5>
+                <span class="badge rounded-pill" [ngClass]="{
+                'bg-success': poll.status === 'active',
+                'bg-warning text-dark': poll.status === 'draft',
+                'bg-secondary': poll.status !== 'active' && poll.status !== 'draft'
+              }">
+                  {{ poll.status }}
+                </span>
+              </div>
+
+              <!-- CUERPO -->
+              <div class="card-body d-flex flex-column">
+                <p class="text-muted small flex-grow-1">
+                  {{ poll.description || 'Sin descripción' }}
+                </p>
+
+                <button class="btn btn-primary btn-sm w-100 mt-2">
+                  Agregar preguntas
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>

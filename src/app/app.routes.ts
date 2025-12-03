@@ -3,6 +3,8 @@ import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AdminLoginComponent } from './admin-login/admin-login.component';
+import { authGuard } from './guards/auth-guard';
+import { PollQuestionsComponent } from './poll-questions/poll-questions.component';
 export const routes: Routes = [
   {
     path: 'login',
@@ -19,6 +21,12 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'polls',
+    component: PollQuestionsComponent,
+    canActivate: [authGuard],
   },
   {
     path: '',

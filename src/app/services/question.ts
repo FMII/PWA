@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Question } from '../interfaces/question';
 import { Option } from '../interfaces/question';
+import { AuthService } from './auth.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -10,15 +11,15 @@ export class QuestionService {
 
   private apiUrl = 'http://localhost:3000/api/questions';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   // 🔐 Inyecta el token en cada request
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token') || '';
-    return new HttpHeaders({
-      Authorization: `Bearer ${token}`
-    });
-  }
+  const token = this.authService.getAuthToken() ?? '';
+  return new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+}
 
   // 🔹 Obtener todas las preguntas (requiere autenticación)
   getAllQuestions(): Observable<Question[]> {

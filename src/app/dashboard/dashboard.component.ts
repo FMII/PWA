@@ -8,7 +8,7 @@ import { IonIcon } from '@ionic/angular/standalone';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
   standalone: true,
-  imports: [FormsModule, NgFor, IonIcon]
+  imports: [FormsModule, NgFor]
 })
 export class DashboardComponent implements OnInit, AfterViewInit {
 

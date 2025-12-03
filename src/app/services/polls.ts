@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Poll } from '../interfaces/poll';
-
+import { AuthService } from './auth.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -10,11 +10,10 @@ export class Polls {
 
   private apiUrl = 'http://localhost:3000/api/polls';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // Helper para enviar token (si lo manejas desde localStorage)
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token') || '';
+    const token = this.authService.getAuthToken() ?? '';
     return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });

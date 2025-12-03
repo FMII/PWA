@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   // URL base de la API en desarrollo
-  apiUrl: 'http://localhost:3000'
+  apiUrl: 'https://dtxp3q4n-3000.usw3.devtunnels.ms/api'
 };
 
 /*

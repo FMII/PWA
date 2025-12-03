@@ -1,0 +1,58 @@
+#register-page {
+  --background: #fff;
+}
+
+#register-page .wave-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  z-index: 0;
+}
+
+#register-page .wave-container svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+#register-page .register-content {
+  position: relative;
+  z-index: 1;
+  padding-top: 120px;
+}
+
+#register-page .logo-container {
+  margin-bottom: 30px;
+}
+
+#register-page .minimal-list {
+  background: transparent;
+}
+
+#register-page ion-item {
+  --background: #ffffff;
+  --border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+#register-page ion-input {
+  --padding-start: 10px;
+}
+
+#register-page ion-input::placeholder {
+  color: #7a7a7a !important;
+}
+
+#register-page ion-button {
+  --border-radius: 25px;
+  text-transform: none;
+  font-weight: 600;
+}
+
+#register-page ion-icon {
+  color: #973661;
+}

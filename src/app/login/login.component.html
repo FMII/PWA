@@ -17,25 +17,78 @@
 
     <ion-list lines="none" class="minimal-list">
       <ion-item>
-        <ion-input label="Correo electrónico" label-placement="floating" type="email"
-          placeholder="ejemplo@dominio.com"></ion-input>
+        <ion-input 
+          label="Correo electrónico" 
+          label-placement="floating" 
+          type="email"
+          [(ngModel)]="email"
+          placeholder="ejemplo@dominio.com">
+        </ion-input>
       </ion-item>
 
       <ion-item>
-        <ion-input label="Contraseña" label-placement="floating" type="password"
-          placeholder="Tu contraseña"></ion-input>
+        <ion-input 
+          label="Contraseña" 
+          label-placement="floating" 
+          type="password"
+          [(ngModel)]="password"
+          placeholder="Tu contraseña">
+        </ion-input>
       </ion-item>
     </ion-list>
 
-    <ion-button expand="block" class="ion-margin-top" style="--background: #973661; --background-activated: #c15485;">
-      Acceder
+    <ion-button 
+      expand="block" 
+      class="ion-margin-top" 
+      style="--background: #973661; --background-activated: #c15485;"
+      (click)="login()"
+      [disabled]="isLoading">
+      <ion-icon *ngIf="isLoading" name="hourglass-outline" slot="start"></ion-icon>
+      {{ isLoading ? 'Accediendo...' : 'Acceder' }}
     </ion-button>
+
+    <!-- Botón de login biométrico -->
+    <ion-button
+      *ngIf="biometricAvailable && hasBiometricCredentials"
+      expand="block"
+      fill="outline"
+      class="ion-margin-top biometric-button"
+      (click)="loginWithBiometric()"
+      [disabled]="isLoading"
+    >
+      <ion-icon name="finger-print" slot="start"></ion-icon>
+      Usar Face ID / Huella
+    </ion-button>
+
+    <!-- Mensaje si biometría está disponible pero no registrada -->
+    <div *ngIf="biometricAvailable && !hasBiometricCredentials" class="ion-text-center ion-margin-top">
+      <ion-text color="medium">
+        <p style="font-size: 0.9em;">
+          💡 Después de iniciar sesión podrás habilitar Face ID / Huella digital
+        </p>
+      </ion-text>
+    </div>
 
     <ion-button
       expand="block"
       class="ion-margin-top outline-button"
+      routerLink="/register"
     >
       Regístrate
+    </ion-button>
+
+    <!-- Opción para desactivar biometría (solo visible si está activada) -->
+    <ion-button
+      *ngIf="hasBiometricCredentials"
+      expand="block"
+      fill="clear"
+      size="small"
+      color="medium"
+      class="ion-margin-top"
+      (click)="removeBiometric()"
+    >
+      <ion-icon name="trash-outline" slot="start"></ion-icon>
+      Desactivar biometría
     </ion-button>
   </div>
 </ion-content>

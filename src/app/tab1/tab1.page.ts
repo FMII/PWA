@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ToastController } from '@ionic/angular';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonRow, IonCol, IonGrid, IonText, IonCard,
   IonCardHeader, IonCardTitle, IonCardContent, IonBadge, IonButton, IonSpinner,
@@ -14,6 +14,8 @@ import { OverlayEventDetail } from '@ionic/core/components';
 import { QuestionService } from '../services/question';
 import { Answer } from '../services/answer';
 import { AuthService } from '../services/auth.service';
+import { PushNotificationService } from '../services/push-notification.service';
+
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
@@ -25,7 +27,7 @@ import { AuthService } from '../services/auth.service';
     IonModal, IonButtons, IonItem, IonLabel, IonList, IonRadio, IonInput, IonCheckbox, IonRadioGroup,
   ],
 })
-export class Tab1Page {
+export class Tab1Page implements OnInit {
   @ViewChild('modal') modal!: IonModal;
 
   polls: any[] = [];
@@ -41,12 +43,67 @@ export class Tab1Page {
     private questionService: QuestionService,
     private answerService: Answer,
     private alertController: AlertController,
+    private toastController: ToastController,
+    private pushService: PushNotificationService,
     private authService: AuthService
   ) { }
 
   ngOnInit(): void {
     /*this.loadAnsweredPolls();*/
     this.loadPolls();
+    this.checkAndRequestNotifications();
+  }
+
+  async checkAndRequestNotifications() {
+    try {
+      // Esperar un poco para no bloquear la carga inicial
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      const user = this.authService.getCurrentUser();
+      if (!user?.id) return;
+
+      // Verificar si ya tiene permiso
+      if (Notification.permission === 'granted') {
+        // Asegurar que esté suscrito en el backend
+        await this.pushService.initialize();
+        await this.pushService.subscribeUser(user.id);
+        return;
+      }
+
+      // Si ya denegó, no molestar
+      if (Notification.permission === 'denied') return;
+
+      // Si no ha respondido, preguntar
+      const alert = await this.alertController.create({
+        header: '🔔 Activar Notificaciones',
+        message: '¿Quieres recibir avisos cuando haya nuevas encuestas?',
+        buttons: [
+          { text: 'No por ahora', role: 'cancel' },
+          {
+            text: 'Sí, activar',
+            handler: async () => {
+              await this.pushService.initialize();
+              const success = await this.pushService.subscribeUser(user.id);
+              
+              if (success) {
+                const toast = await this.toastController.create({
+                  message: '✅ Notificaciones activadas',
+                  duration: 2000,
+                  color: 'success',
+                  position: 'top'
+                });
+                await toast.present();
+              }
+            }
+          }
+        ]
+      });
+
+      await alert.present();
+
+    } catch (error) {
+      console.error('Error verificando notificaciones:', error);
+    }
   }
   /*
   loadAnsweredPolls() {

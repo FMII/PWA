@@ -18,7 +18,7 @@ bootstrapApplication(AppComponent, {
     importProvidersFrom(FormsModule),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideServiceWorker('ngsw-worker.js', {
-      enabled: !isDevMode(),
+      enabled: true, // Activado siempre para probar notificaciones
       registrationStrategy: 'registerWhenStable:30000'
     }),
   ],

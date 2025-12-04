@@ -3,12 +3,14 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Poll } from '../interfaces/poll';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class Polls {
 
-  private apiUrl = 'http://localhost:3000/api/polls';
+  private apiUrl = `${environment.apiUrl}/polls`;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

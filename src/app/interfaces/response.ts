@@ -3,7 +3,7 @@ export interface Response {
   pollId: number;
   questionId: number;
   userId: number;
-  optionId: number;
+  optionId: number | null;
   response: string;
   createdAt: string;
   updatedAt: string;

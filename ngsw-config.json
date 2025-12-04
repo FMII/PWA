@@ -29,14 +29,27 @@
   ],
   "dataGroups": [
     {
-      "name": "api",
+      "name": "api-cache",
       "urls": [
-        "https://api.example.com/**"
+        "https://dtxp3q4n-3000.usw3.devtunnels.ms/api/**"
       ],
       "cacheConfig": {
         "maxSize": 100,
-        "maxAge": "1h",
+        "maxAge": "1d",
         "timeout": "10s",
+        "strategy": "performance"
+      }
+    },
+    {
+      "name": "api-fresh",
+      "urls": [
+        "https://dtxp3q4n-3000.usw3.devtunnels.ms/api/users",
+        "https://dtxp3q4n-3000.usw3.devtunnels.ms/api/auth/**"
+      ],
+      "cacheConfig": {
+        "maxSize": 50,
+        "maxAge": "1h",
+        "timeout": "5s",
         "strategy": "freshness"
       }
     }

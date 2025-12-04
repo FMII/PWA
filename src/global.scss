@@ -45,3 +45,27 @@
 :root, body, ion-app {
   font-family: 'Roboto', sans-serif !important;
 }
+
+/* Fix para inputs en todas las plataformas */
+ion-input {
+  --color: #000000;
+  --placeholder-color: #7a7a7a;
+  --placeholder-opacity: 1;
+}
+
+ion-input input {
+  color: #000000 !important;
+}
+
+ion-input::part(native) {
+  color: #000000 !important;
+}
+
+/* Fix específico para iOS */
+@supports (-webkit-touch-callout: none) {
+  ion-input input,
+  ion-input::part(native) {
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+  }
+}

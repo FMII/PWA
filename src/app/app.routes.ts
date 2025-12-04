@@ -8,6 +8,11 @@ import { PollQuestionsComponent } from './poll-questions/poll-questions.componen
 import { PollQuestionComponent } from './poll-question/poll-question.component';
 export const routes: Routes = [
   {
+    path: '',
+    redirectTo: 'register',
+    pathMatch: 'full'
+  },
+  {
     path: 'login',
     component: LoginComponent,
   },
@@ -35,7 +40,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: '',
+    path: 'tabs',
     loadChildren: () => import('./tabs/tabs.routes').then((m) => m.routes),
   },
 ];

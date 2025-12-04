@@ -13,11 +13,14 @@
     </ion-row>
 
     <ion-row>
+      <!-- Mostrar encuestas del usuario -->
       <ion-col size-lg="4" size-md="6" size-sm="12" *ngFor="let poll of polls">
         <ion-card class="poll-card">
           <ion-card-header>
             <ion-card-title class="title">
-              <ion-badge style="font-size: 12px; font-weight: 400;" [color]="poll.status === 'active' ? 'success' : 'medium'">
+              <ion-badge
+                style="font-size: 12px; font-weight: 400;"
+                [color]="poll.status === 'active' ? 'success' : 'medium'">
                 {{ poll.status }}
               </ion-badge>
               <div>
@@ -31,8 +34,8 @@
 
           <ion-card-content>
             <div class="actions">
-              <ion-button expand="block" disabled>
-                Contestada
+              <ion-button expand="block" (click)="viewResponses(poll)">
+                Ver respuestas
               </ion-button>
             </div>
           </ion-card-content>
@@ -44,4 +47,38 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
+  <!-- Modal de respuestas -->
+  <ion-modal #responsesModal>
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-buttons slot="start">
+            <ion-button (click)="closeResponsesModal()">Cerrar</ion-button>
+          </ion-buttons>
+          <ion-title>{{ selectedPollTitle }}</ion-title>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding">
+        <!-- Spinner mientras se cargan las respuestas -->
+        <ion-spinner *ngIf="loadingResponses" name="lines"></ion-spinner>
+
+        <!-- Lista de respuestas -->
+        <ion-list *ngIf="!loadingResponses && userResponses.length > 0">
+          <ion-item *ngFor="let r of userResponses">
+            <ion-label>
+              <strong>{{ r.questionTitle }}</strong>
+              <p>{{ r.answer }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+
+        <!-- Mensaje si no hay respuestas -->
+        <div *ngIf="!loadingResponses && userResponses.length === 0">
+          No hay respuestas registradas para esta encuesta.
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 </ion-content>

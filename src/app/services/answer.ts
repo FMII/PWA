@@ -1,14 +1,22 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Response } from '../interfaces/response';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from './auth.service';
 @Injectable({
   providedIn: 'root'
 })
 export class Answer {
   private apiUrl = 'http://localhost:3000/api/responses';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private authService: AuthService) { }
+
+  private getHeaders(): HttpHeaders {
+    const token = this.authService.getAuthToken() ?? '';
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+  }
 
   // ⭐ Obtener todas las respuestas (solo admin)
   getAllResponses(): Observable<Response[]> {
@@ -49,5 +57,10 @@ export class Answer {
   // ⭐ Respuestas por usuario
   getResponsesByUser(userId: number): Observable<Response[]> {
     return this.http.get<Response[]>(`${this.apiUrl}/user/${userId}`);
+  }
+
+  // ⭐ Respuestas por encuesta y usuario
+  getResponsesByPollAndUser(pollId: number, userId: number): Observable<Response[]> {
+    return this.http.get<Response[]>(`${this.apiUrl}/poll/${pollId}/user/${userId}`);
   }
 }

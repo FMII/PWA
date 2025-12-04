@@ -1,3 +1,4 @@
+<!--
 <ion-header>
   <ion-toolbar>
     <ion-title>Encuestas</ion-title>
@@ -5,13 +6,6 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <div class="page-header">
-    <h2>Todas las encuestas</h2>
-    <p class="muted">
-      Explora las encuestas disponibles. Haz click en una para ver preguntas y respuestas.
-    </p>
-  </div>
-
   <ion-grid>
     <ion-row>
       <ion-col size="12">
@@ -49,10 +43,7 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <!-- ESTE BOTÓN ABRE EL MODAL -->
-  <ion-button id="open-modal" expand="block">Contestar</ion-button>
-  <!--  MODAL  -->
-  <ion-modal #modal (willDismiss)="onWillDismiss($event)">
+  <ion-modal #modal>
     <ng-template>
       <ion-header>
         <ion-toolbar>
@@ -63,22 +54,76 @@
           <ion-title>{{ activePollTitle }}</ion-title>
 
           <ion-buttons slot="end">
-            <ion-button (click)="confirm()" [strong]="true">Confirmar</ion-button>
+            <ion-button (click)="submitResponses()" [strong]="true">
+              Enviar 
+            </ion-button>
           </ion-buttons>
         </ion-toolbar>
       </ion-header>
 
       <ion-content class="ion-padding">
-        <h3>Preguntas</h3>
+  <h3>Preguntas</h3>
 
-        <ion-list>
-          <ion-item *ngFor="let q of pollQuestions">
-            <ion-label>{{ q.title }}</ion-label>
-          </ion-item>
-        </ion-list>
-      </ion-content>
+  <ion-list>
+    <div *ngFor="let q of pollQuestions" style="margin-bottom: 20px;">
+      
+      <ion-item lines="none">
+        <ion-label class="ion-text-wrap">
+          <strong>{{ q.title }}</strong>
+        </ion-label>
+      </ion-item>
+
+      <ion-item *ngIf="q.type === 'open'">
+        <ion-input
+          [(ngModel)]="q.answer"
+          placeholder="Escribe tu respuesta...">
+        </ion-input>
+      </ion-item>
+
+      <ion-list *ngIf="q.type === 'multiple-choice'">
+        <ion-item *ngFor="let opt of q.options">
+          <ion-checkbox
+            slot="start"
+            [(ngModel)]="opt.selected">
+          </ion-checkbox>
+          <ion-label>{{ opt.text }}</ion-label>
+        </ion-item>
+      </ion-list>
+
+      <ion-radio-group
+        *ngIf="q.type === 'single-choice'"
+        [(ngModel)]="q.answer">
+
+        <ion-item *ngFor="let opt of q.options">
+          <ion-label>{{ opt.text }}</ion-label>
+          <ion-radio slot="end" [value]="opt.id"></ion-radio>
+        </ion-item>
+
+      </ion-radio-group>
+
+      <ion-radio-group
+        *ngIf="q.type === 'yes-no'"
+        [(ngModel)]="q.answer">
+
+        <ion-item>
+          <ion-label>Sí</ion-label>
+          <ion-radio slot="end" value="yes"></ion-radio>
+        </ion-item>
+
+        <ion-item>
+          <ion-label>No</ion-label>
+          <ion-radio slot="end" value="no"></ion-radio>
+        </ion-item>
+
+      </ion-radio-group>
+
+    </div>
+  </ion-list>
+</ion-content>
+
     </ng-template>
   </ion-modal>
 
 
 </ion-content>
+-->

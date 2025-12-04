@@ -43,6 +43,10 @@
               }">
                   {{ poll.status }}
                 </span>
+                <button class="btn btn-primary" [routerLink]="['/encuesta', poll.id]">
+                  Editar preguntas
+                </button>
+
               </div>
 
               <!-- CUERPO -->
@@ -63,45 +67,45 @@
       </div>
     </div>
   </div>
-<!-- MODAL PARA CREAR PREGUNTA -->
-<div id="questionModal" class="custom-modal">
-  <div class="custom-modal-content">
+  <!-- MODAL PARA CREAR PREGUNTA -->
+  <div id="questionModal" class="custom-modal">
+    <div class="custom-modal-content">
 
-    <div class="custom-modal-header">
-      <h2>Agregar pregunta</h2>
-      <button class="close-btn" (click)="closeModal()">×</button>
-    </div>
+      <div class="custom-modal-header">
+        <h2>Agregar pregunta</h2>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </div>
 
-    <div class="custom-modal-body">
+      <div class="custom-modal-body">
 
-      <label>Título de la pregunta</label>
-      <input type="text" [(ngModel)]="newQuestion.title" />
+        <label>Título de la pregunta</label>
+        <input type="text" [(ngModel)]="newQuestion.title" />
 
-      <label>Tipo de pregunta</label>
-      <select [(ngModel)]="newQuestion.type" (change)="onTypeChange()">
-        <option value="multiple-choice">Opción múltiple</option>
-        <option value="single-choice">Opción única</option>
-        <option value="open">Pregunta abierta</option>
-        <option value="yes-no">Sí / No (single-choice)</option>
-      </select>
+        <label>Tipo de pregunta</label>
+        <select [(ngModel)]="newQuestion.type" (change)="onTypeChange()">
+          <option value="multiple-choice">Opción múltiple</option>
+          <option value="single-choice">Opción única</option>
+          <option value="open">Pregunta abierta</option>
+          <option value="yes-no">Sí / No (single-choice)</option>
+        </select>
 
-      <!-- Opciones -->
-      <div *ngIf="newQuestion.type !== 'open'">
-        <label>Opciones:</label>
-        <div class="option-item" *ngFor="let option of newQuestion.options; let i = index">
-          <input type="text" [(ngModel)]="option.text" placeholder="Escribe una opción">
-          <button class="remove-option" (click)="removeOption(i)">✕</button>
+        <!-- Opciones -->
+        <div *ngIf="newQuestion.type !== 'open'">
+          <label>Opciones:</label>
+          <div class="option-item" *ngFor="let option of newQuestion.options; let i = index">
+            <input type="text" [(ngModel)]="option.text" placeholder="Escribe una opción">
+            <button class="remove-option" (click)="removeOption(i)">✕</button>
+          </div>
+          <button class="add-option-btn" (click)="addOption()">Agregar opción</button>
         </div>
-        <button class="add-option-btn" (click)="addOption()">Agregar opción</button>
+
+      </div>
+
+      <div class="custom-modal-footer">
+        <button class="cancel-btn" (click)="closeModal()">Cerrar</button>
+        <button class="save-btn" (click)="saveQuestion(true)">Guardar y agregar otra</button>
+        <button class="save-btn" (click)="saveQuestion(false)">Guardar y cerrar</button>
       </div>
 
     </div>
-
-    <div class="custom-modal-footer">
-      <button class="cancel-btn" (click)="closeModal()">Cerrar</button>
-      <button class="save-btn" (click)="saveQuestion(true)">Guardar y agregar otra</button>
-      <button class="save-btn" (click)="saveQuestion(false)">Guardar y cerrar</button>
-    </div>
-
   </div>
-</div>

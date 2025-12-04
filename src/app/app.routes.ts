@@ -5,6 +5,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AdminLoginComponent } from './admin-login/admin-login.component';
 import { authGuard } from './guards/auth-guard';
 import { PollQuestionsComponent } from './poll-questions/poll-questions.component';
+import { PollQuestionComponent } from './poll-question/poll-question.component';
 export const routes: Routes = [
   {
     path: 'login',
@@ -24,8 +25,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
-    path: 'polls',
+    path: 'admin/encuestas',
     component: PollQuestionsComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'encuesta/:id',
+    component: PollQuestionComponent,
     canActivate: [authGuard],
   },
   {

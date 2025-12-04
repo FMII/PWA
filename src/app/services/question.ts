@@ -11,15 +11,15 @@ export class QuestionService {
 
   private apiUrl = 'http://localhost:3000/api/questions';
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private http: HttpClient, private authService: AuthService) { }
 
   // 🔐 Inyecta el token en cada request
   private getHeaders(): HttpHeaders {
-  const token = this.authService.getAuthToken() ?? '';
-  return new HttpHeaders({
-    Authorization: `Bearer ${token}`
-  });
-}
+    const token = this.authService.getAuthToken() ?? '';
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+  }
 
   // 🔹 Obtener todas las preguntas (requiere autenticación)
   getAllQuestions(): Observable<Question[]> {
@@ -88,4 +88,56 @@ export class QuestionService {
     });
   }
 
+
+  /* OPCIONES */
+
+  /** Obtener todas las opciones */
+  getAllOptions(): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:3000/api/options`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  /** Obtener opción por ID */
+  getOptionById(id: number): Observable<any> {
+    return this.http.get<any>(`http://localhost:3000/api/options/${id}`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  /** Crear nueva opción (solo admin) */
+  createOption(data: any): Observable<any> {
+    return this.http.post<any>(`http://localhost:3000/api/options`, data, {
+      headers: this.getHeaders()
+    });
+  }
+
+  /** Actualizar opción (solo admin) */
+  updateOption(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`http://localhost:3000/api/options/${id}`, data, {
+      headers: this.getHeaders()
+    });
+  }
+
+  /** Eliminar opción (solo admin) */
+  deleteOption(id: number): Observable<any> {
+    return this.http.delete<any>(`http://localhost:3000/api/options/${id}`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  /** Obtener respuestas de una opción (solo admin) */
+  getOptionResponses(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:3000/api/options/${id}/responses`, {
+      headers: this.getHeaders()
+    });
+  }
+
+  /** Obtener todas las opciones de una pregunta  
+   *  (tu backend tiene el método en OptionService aunque no está en rutas)
+   *  Si tienes una ruta /api/questions/:id/options deberías usarla.
+   */
+  getOptionsByQuestion(questionId: number): Observable<any[]> {
+    return this.http.get<any[]>(`http://localhost:3000/api/questions/${questionId}/options`);
+  }
 }

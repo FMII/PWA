@@ -3,12 +3,13 @@ import { Polls } from '../services/polls';
 import { NgFor, NgIf, NgClass } from '@angular/common';
 import { QuestionService } from '../services/question';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-poll-questions',
   templateUrl: './poll-questions.component.html',
   styleUrls: ['./poll-questions.component.scss'],
-  imports: [NgFor, NgClass, FormsModule, NgIf]
+  imports: [NgFor, NgClass, FormsModule, NgIf, RouterModule]
 })
 export class PollQuestionsComponent implements OnInit {
 

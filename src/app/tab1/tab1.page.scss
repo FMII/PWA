@@ -1,0 +1,47 @@
+.page-header h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.4rem;
+}
+
+.page-header .muted {
+  color: var(--ion-color-medium-contrast);
+  margin-bottom: 12px;
+}
+
+.poll-card {
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.poll-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.10);
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.small-description {
+  font-size: 0.85rem;
+  color: var(--ion-color-medium-contrast);
+}
+
+.meta-row {
+  margin-bottom: 12px;
+}
+
+.actions-row {
+  display: flex;
+  gap: 8px;
+}
+
+.empty {
+  text-align: center;
+  color: var(--ion-color-medium-contrast);
+  padding: 24px 0;
+}

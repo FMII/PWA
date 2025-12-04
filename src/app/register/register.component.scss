@@ -41,6 +41,13 @@
 
 #register-page ion-input {
   --padding-start: 10px;
+  --color: #000000;
+  --placeholder-color: #7a7a7a;
+  --placeholder-opacity: 1;
+}
+
+#register-page ion-input::part(native) {
+  color: #000000 !important;
 }
 
 #register-page ion-input::placeholder {

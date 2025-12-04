@@ -13,7 +13,7 @@ import { DatePipe, NgIf, NgFor } from '@angular/common';
 import { OverlayEventDetail } from '@ionic/core/components';
 import { QuestionService } from '../services/question';
 import { Answer } from '../services/answer';
-
+import { AuthService } from '../services/auth.service';
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
@@ -33,18 +33,27 @@ export class Tab1Page {
   activePollId!: number;
   activePollTitle: string = '';
   pollQuestions: any[] = [];
+  answeredPolls: number[] = []; // IDs de encuestas contestadas
+
 
   constructor(
     private pollsService: Polls,
     private questionService: QuestionService,
     private answerService: Answer,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
+    /*this.loadAnsweredPolls();*/
     this.loadPolls();
   }
-
+  /*
+  loadAnsweredPolls() {
+    const saved = localStorage.getItem('answeredPolls');
+    this.answeredPolls = saved ? JSON.parse(saved) : [];
+  }
+  */
   loadPolls() {
     this.loading = true;
     this.pollsService.getAllPolls().subscribe({
@@ -144,97 +153,94 @@ export class Tab1Page {
   }
 
   async submitResponses() {
-    const userId = 1;
+  const user = this.authService.getCurrentUser();
+  const userId = user?.id;
 
-    try {
-      for (const q of this.pollQuestions) {
-        let payload: any = null;
+  if (!userId) {
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message: 'No se pudo identificar al usuario. Por favor inicia sesión de nuevo.',
+      buttons: ['OK'],
+    });
+    await alert.present();
+    return;
+  }
 
-        // -----------------------------
-        // OPEN
-        // -----------------------------
-        if (q.type === 'open') {
-          payload = {
-            pollId: this.activePollId,
-            questionId: q.id,
-            userId,
-            response: q.answer || '',
-            optionId: null
-          };
-        }
+  try {
+    for (const q of this.pollQuestions) {
+      let payload: any = null;
 
-        // -----------------------------
-        // YES / NO
-        // -----------------------------
-        if (q.type === 'yes-no') {
-          payload = {
-            pollId: this.activePollId,
-            questionId: q.id,
-            userId,
-            response: q.answer === true ? "yes" : "no"
-          };
-        }
-
-        // -----------------------------
-        // SINGLE CHOICE
-        // -----------------------------
-        if (q.type === 'single-choice') {
-          payload = {
-            pollId: this.activePollId,
-            questionId: q.id,
-            userId,
-            optionId: q.answer,
-            response: ''
-          };
-        }
-
-        // -----------------------------
-        // MULTIPLE CHOICE
-        // -----------------------------
-        if (q.type === 'multiple-choice') {
-          const selected = q.options.filter((o: any) => o.selected);
-
-          for (const opt of selected) {
-            const multiPayload = {
-              pollId: this.activePollId,
-              questionId: q.id,
-              userId,
-              optionId: opt.id,
-              response: ''
-            };
-
-            console.log("📤 Enviando MULTIPLE:", multiPayload);
-            await this.sendSingleResponse(multiPayload);
-          }
-
-          continue;
-        }
-
-        console.log("📤 Enviando:", payload);
-        await this.sendSingleResponse(payload);
+      // OPEN
+      if (q.type === 'open') {
+        payload = {
+          pollId: this.activePollId,
+          questionId: q.id,
+          userId,
+          response: q.answer || '',
+          optionId: null
+        };
       }
 
-      // ✅ Al terminar todas las respuestas:
-      const alert = await this.alertController.create({
-        header: 'Éxito',
-        message: 'La encuesta se ha contestado correctamente.',
-        buttons: ['OK'],
-      });
+      // YES / NO
+      if (q.type === 'yes-no') {
+        payload = {
+          pollId: this.activePollId,
+          questionId: q.id,
+          userId,
+          response: q.answer === true ? "yes" : "no"
+        };
+      }
 
-      await alert.present();
+      // SINGLE CHOICE
+      if (q.type === 'single-choice') {
+        payload = {
+          pollId: this.activePollId,
+          questionId: q.id,
+          userId,
+          optionId: q.answer,
+          response: ''
+        };
+      }
 
-      // Cierra el modal
-      this.modal.dismiss();
+      // MULTIPLE CHOICE
+      if (q.type === 'multiple-choice') {
+        const selected = q.options.filter((o: any) => o.selected);
 
-    } catch (err) {
-      console.error('Error enviando respuestas', err);
-      const alert = await this.alertController.create({
-        header: 'Error',
-        message: 'Hubo un problema al enviar la encuesta. Intenta de nuevo.',
-        buttons: ['OK'],
-      });
+        for (const opt of selected) {
+          const multiPayload = {
+            pollId: this.activePollId,
+            questionId: q.id,
+            userId,
+            optionId: opt.id,
+            response: ''
+          };
 
-      await alert.present();
+          await this.sendSingleResponse(multiPayload);
+        }
+
+        continue;
+      }
+
+      await this.sendSingleResponse(payload);
     }
+
+    const alert = await this.alertController.create({
+      header: 'Éxito',
+      message: 'La encuesta se ha contestado correctamente.',
+      buttons: ['OK'],
+    });
+    await alert.present();
+    this.modal.dismiss();
+
+  } catch (err) {
+    console.error('Error enviando respuestas', err);
+    const alert = await this.alertController.create({
+      header: 'Error',
+      message: 'Hubo un problema al enviar la encuesta. Intenta de nuevo.',
+      buttons: ['OK'],
+    });
+    await alert.present();
   }
+}
+
 }

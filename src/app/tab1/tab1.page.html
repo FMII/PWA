@@ -18,6 +18,10 @@
           <ion-card-header>
 
             <ion-card-title class="title">
+              <!--<ion-badge  *ngIf="answeredPolls.includes(poll.id)" color="tertiary" style="font-size:12px; margin-right: 5px;">
+  Contestada
+</ion-badge>-->
+
               <ion-badge style="font-size: 12px; font-weight: 400;" [color]="poll.status === 'active' ? 'success' : 'medium'">{{ poll.status }}</ion-badge>
               <div>
                 <p class="">{{ poll.title }}</p>

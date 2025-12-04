@@ -1,17 +1,47 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Tab 3
-    </ion-title>
+    <ion-title>Encuestas Respondidas</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <ion-grid>
+    <ion-row>
+      <ion-col size="12">
+        <ion-spinner *ngIf="loading" name="lines"></ion-spinner>
+      </ion-col>
+    </ion-row>
 
-  <app-explore-container name="Tab 3 page"></app-explore-container>
+    <ion-row>
+      <ion-col size-lg="4" size-md="6" size-sm="12" *ngFor="let poll of polls">
+        <ion-card class="poll-card">
+          <ion-card-header>
+            <ion-card-title class="title">
+              <ion-badge style="font-size: 12px; font-weight: 400;" [color]="poll.status === 'active' ? 'success' : 'medium'">
+                {{ poll.status }}
+              </ion-badge>
+              <div>
+                <p>{{ poll.title }}</p>
+                <div style="color: black; font-weight: 400;" class="small-description">
+                  {{ poll.description || 'Sin descripción' }}
+                </div>
+              </div>
+            </ion-card-title>
+          </ion-card-header>
+
+          <ion-card-content>
+            <div class="actions">
+              <ion-button expand="block" disabled>
+                Contestada
+              </ion-button>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <ion-col *ngIf="!loading && polls.length === 0" size="12">
+        <div class="empty">No hay encuestas para mostrar.</div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </ion-content>

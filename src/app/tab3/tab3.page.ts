@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonRow, IonCol, IonGrid, IonText, IonCard,
-  IonCardHeader, IonCardTitle, IonCardContent, IonBadge, IonSpinner, IonButton, IonModal, IonList, IonItem, IonLabel, IonButtons
+  IonCardHeader, IonCardTitle, IonCardContent, IonBadge, IonSpinner, IonButton, IonModal, IonList, IonItem, IonLabel, IonButtons, IonIcon, IonChip
 } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -11,6 +11,8 @@ import { Polls } from '../services/polls';
 import { AuthService, User } from '../services/auth.service';
 import { Poll } from '../interfaces/poll';
 import { Answer } from '../services/answer';
+import { addIcons } from 'ionicons';
+import { checkmarkCircle } from 'ionicons/icons';
 
 @Component({
   selector: 'app-tab3',
@@ -19,7 +21,7 @@ import { Answer } from '../services/answer';
   imports: [
     IonHeader, IonToolbar, IonTitle, IonContent, IonRow, IonCol, IonGrid, IonText, IonCard,
     IonCardHeader, IonCardTitle, IonCardContent, IonBadge, IonSpinner,
-    ExploreContainerComponent, FormsModule, RouterModule, DatePipe, NgIf, NgFor, IonButton, IonModal, IonList, IonItem, IonLabel, IonButtons
+    ExploreContainerComponent, FormsModule, RouterModule, DatePipe, NgIf, NgFor, IonButton, IonModal, IonList, IonItem, IonLabel, IonButtons, IonIcon, IonChip
   ],
 })
 export class Tab3Page implements OnInit {
@@ -30,13 +32,16 @@ export class Tab3Page implements OnInit {
   @ViewChild('responsesModal') responsesModal!: IonModal;
   selectedPollTitle: string = '';
   userResponses: any[] = [];
+  pollDetails: any = null; // Nueva propiedad
   loadingResponses: boolean = false;
 
   constructor(
     private pollsService: Polls,
     private authService: AuthService,
     private answerService: Answer
-  ) { }
+  ) {
+    addIcons({ checkmarkCircle });
+  }
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
@@ -64,21 +69,22 @@ export class Tab3Page implements OnInit {
     });
   }
 
-  viewResponses(poll: Poll) {
+  viewPollDetails(poll: Poll) {
     if (!this.currentUser) return;
 
     this.selectedPollTitle = poll.title;
     this.loadingResponses = true;
+    this.pollDetails = null; // Limpiar anterior
 
-    // ✅ Usamos el servicio Answer, que apunta a /api/responses
-    this.answerService.getResponsesByPollAndUser(poll.id, this.currentUser.id).subscribe({
+    // ✅ Usamos el nuevo endpoint que trae preguntas + opciones + respuesta del usuario
+    this.answerService.getAnsweredPollDetails(poll.id, this.currentUser.id).subscribe({
       next: (res) => {
-        this.userResponses = res;
+        this.pollDetails = res;
         this.loadingResponses = false;
         this.responsesModal.present();
       },
       error: (err) => {
-        console.error('Error cargando respuestas', err);
+        console.error('Error cargando detalles', err);
         this.loadingResponses = false;
       }
     });

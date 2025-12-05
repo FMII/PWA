@@ -34,7 +34,7 @@
 
           <ion-card-content>
             <div class="actions">
-              <ion-button expand="block" (click)="viewResponses(poll)">
+              <ion-button expand="block" (click)="viewPollDetails(poll)">
                 Ver respuestas
               </ion-button>
             </div>
@@ -64,19 +64,48 @@
         <!-- Spinner mientras se cargan las respuestas -->
         <ion-spinner *ngIf="loadingResponses" name="lines"></ion-spinner>
 
-        <!-- Lista de respuestas -->
-        <ion-list *ngIf="!loadingResponses && userResponses.length > 0">
-          <ion-item *ngFor="let r of userResponses">
-            <ion-label>
-              <strong>{{ r.questionTitle }}</strong>
-              <p>{{ r.answer }}</p>
-            </ion-label>
-          </ion-item>
-        </ion-list>
+        <!-- Detalles de la encuesta -->
+        <div *ngIf="!loadingResponses && pollDetails">
+          
+          <div *ngFor="let q of pollDetails.questions" class="question-block mb-4">
+            <h3 class="question-title">{{ q.title }}</h3>
+            
+            <!-- Opciones (Single/Multiple Choice) -->
+            <div *ngIf="q.options && q.options.length > 0">
+              <ion-list>
+                <ion-item *ngFor="let opt of q.options" [color]="opt.selected ? 'light' : ''">
+                  <ion-label [color]="opt.selected ? 'primary' : ''">
+                    {{ opt.text }}
+                  </ion-label>
+                  <ion-icon *ngIf="opt.selected" name="checkmark-circle" slot="end" color="primary"></ion-icon>
+                </ion-item>
+              </ion-list>
+            </div>
 
-        <!-- Mensaje si no hay respuestas -->
-        <div *ngIf="!loadingResponses && userResponses.length === 0">
-          No hay respuestas registradas para esta encuesta.
+            <!-- Respuesta Abierta -->
+            <div *ngIf="(!q.options || q.options.length === 0) && q.userResponse">
+              <ion-card class="response-card">
+                <ion-card-content>
+                  <strong>Tu respuesta:</strong>
+                  <p>{{ q.userResponse.response }}</p>
+                </ion-card-content>
+              </ion-card>
+            </div>
+
+            <!-- Yes/No -->
+            <div *ngIf="q.type === 'yes-no' && q.userResponse">
+               <ion-chip [color]="q.userResponse.response === 'yes' ? 'success' : 'danger'">
+                 {{ q.userResponse.response === 'yes' ? 'SÍ' : 'NO' }}
+               </ion-chip>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Mensaje si no hay datos -->
+        <div *ngIf="!loadingResponses && !pollDetails">
+          No se pudieron cargar los detalles.
         </div>
       </ion-content>
     </ng-template>

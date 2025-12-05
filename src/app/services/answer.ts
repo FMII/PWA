@@ -3,11 +3,13 @@ import { Observable } from 'rxjs';
 import { Response } from '../interfaces/response';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class Answer {
-  private apiUrl = 'http://localhost:3000/api/responses';
+  private apiUrl = `${environment.apiUrl}/responses`;
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
@@ -20,12 +22,12 @@ export class Answer {
 
   // ⭐ Obtener todas las respuestas (solo admin)
   getAllResponses(): Observable<Response[]> {
-    return this.http.get<Response[]>(`${this.apiUrl}`);
+    return this.http.get<Response[]>(`${this.apiUrl}`, { headers: this.getHeaders() });
   }
 
   // ⭐ Obtener respuesta por ID
   getResponseById(id: number): Observable<Response> {
-    return this.http.get<Response>(`${this.apiUrl}/${id}`);
+    return this.http.get<Response>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
   // ⭐ Crear respuesta
@@ -33,20 +35,25 @@ export class Answer {
     pollId: number;
     questionId: number;
     userId: number;
-    optionId: number;
+    optionId?: number;
     response: string;
   }): Observable<Response> {
-    return this.http.post<Response>(`${this.apiUrl}`, data);
+    return this.http.post<Response>(`${this.apiUrl}`, data, { headers: this.getHeaders() });
   }
 
   // ⭐ Actualizar respuesta
   updateResponse(id: number, data: Partial<Response>): Observable<Response> {
-    return this.http.put<Response>(`${this.apiUrl}/${id}`, data);
+    return this.http.put<Response>(`${this.apiUrl}/${id}`, data, { headers: this.getHeaders() });
   }
 
   // ⭐ Eliminar respuesta (solo admin)
   deleteResponse(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  // ⭐ Obtener detalles de encuesta contestada (preguntas + respuestas del usuario)
+  getAnsweredPollDetails(pollId: number, userId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/poll/${pollId}/user/${userId}/details`, { headers: this.getHeaders() });
   }
 
   // ⭐ Respuestas por encuesta

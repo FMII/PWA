@@ -26,6 +26,11 @@ export class Polls {
     return this.http.get<Poll[]>(this.apiUrl, { headers: this.getHeaders() });
   }
 
+  // GET /api/polls (El backend detecta el usuario por el token y devuelve el estado 'completed')
+  getPollsForUser(userId: number): Observable<Poll[]> {
+    return this.http.get<Poll[]>(this.apiUrl, { headers: this.getHeaders() });
+  }
+
   // GET /api/polls/:id
   getPollById(id: number): Observable<Poll> {
     return this.http.get<Poll>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });

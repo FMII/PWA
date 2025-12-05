@@ -112,10 +112,21 @@ export class Tab1Page implements OnInit {
   }
   */
   loadPolls() {
+    const user = this.authService.getCurrentUser();
+    if (!user?.id) return;
+
     this.loading = true;
-    this.pollsService.getAllPolls().subscribe({
+    // Usamos el endpoint que trae el estado 'completed' y filtramos en el cliente
+    this.pollsService.getPollsForUser(user.id).subscribe({
       next: (res) => {
-        this.polls = res || [];
+        // Filtramos:
+        // 1. Que NO estén completadas (!p.completed)
+        // 2. Que TENGAN preguntas (p.questions.length > 0)
+        this.polls = (res || []).filter(p => {
+          const isCompleted = p.completed === true;
+          const hasQuestions = p.questions && p.questions.length > 0;
+          return !isCompleted && hasQuestions;
+        });
         this.loading = false;
       },
       error: (err) => {
@@ -288,6 +299,9 @@ export class Tab1Page implements OnInit {
     });
     await alert.present();
     this.modal.dismiss();
+    
+    // Recargar la lista para que desaparezca la encuesta contestada
+    this.loadPolls();
 
   } catch (err) {
     console.error('Error enviando respuestas', err);

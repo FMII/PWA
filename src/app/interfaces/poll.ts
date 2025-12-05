@@ -8,6 +8,8 @@ export interface Poll {
   updatedAt: string;   // o Date si lo conviertes
 
   // Relaciones (opcional si tu API las devuelve)
+  completed?: boolean; // Propiedad agregada por el backend para saber si ya se contestó
+  progress?: number;   // Porcentaje de progreso
   creator?: any;        // Puedes tiparlo luego con la interfaz User
   questions?: any[];    // Luego puedes reemplazar con interface Question
   responses?: any[];    // Igual, luego puedes tiparlo bien

@@ -31,6 +31,7 @@
     "@tabler/core": "^1.4.0",
     "bootstrap": "^5.3.8",
     "chart.js": "^4.5.1",
+    "idb": "^8.0.3",
     "ionicons": "^7.4.0",
     "ng2-charts": "^8.0.0",
     "rxjs": "~7.8.0",

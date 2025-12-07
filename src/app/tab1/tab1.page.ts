@@ -15,6 +15,8 @@ import { QuestionService } from '../services/question';
 import { Answer } from '../services/answer';
 import { AuthService } from '../services/auth.service';
 import { PushNotificationService } from '../services/push-notification.service';
+import { OfflineData } from '../services/offline-data';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-tab1',
@@ -35,6 +37,7 @@ export class Tab1Page implements OnInit {
   activePollId!: number;
   activePollTitle: string = '';
   pollQuestions: any[] = [];
+  pendingCount: number = 0;
   answeredPolls: number[] = []; // IDs de encuestas contestadas
 
 
@@ -45,13 +48,17 @@ export class Tab1Page implements OnInit {
     private alertController: AlertController,
     private toastController: ToastController,
     private pushService: PushNotificationService,
-    private authService: AuthService
+    private authService: AuthService,
+    private offlineData: OfflineData
   ) { }
 
   ngOnInit(): void {
     /*this.loadAnsweredPolls();*/
     this.loadPolls();
     this.checkAndRequestNotifications();
+    // queue processing moved to AppComponent (global)
+    // actualizar contador de pendientes
+    this.updatePendingCount();
   }
 
   async checkAndRequestNotifications() {
@@ -111,30 +118,63 @@ export class Tab1Page implements OnInit {
     this.answeredPolls = saved ? JSON.parse(saved) : [];
   }
   */
-  loadPolls() {
-    const user = this.authService.getCurrentUser();
-    if (!user?.id) return;
+  async loadPolls() {
+  const user = this.authService.getCurrentUser();
+  if (!user?.id) return;
 
-    this.loading = true;
-    // Usamos el endpoint que trae el estado 'completed' y filtramos en el cliente
-    this.pollsService.getPollsForUser(user.id).subscribe({
-      next: (res) => {
-        // Filtramos:
-        // 1. Que NO estén completadas (!p.completed)
-        // 2. Que TENGAN preguntas (p.questions.length > 0)
-        this.polls = (res || []).filter(p => {
-          const isCompleted = p.completed === true;
-          const hasQuestions = p.questions && p.questions.length > 0;
-          return !isCompleted && hasQuestions;
-        });
+  this.loading = true;
+
+  this.pollsService.getPollsForUser(user.id).subscribe({
+    next: async (res) => {
+      const list = (res || []).filter(p => !p.completed && p.questions && p.questions.length > 0);
+      this.polls = list;
+        await this.offlineData.savePolls(list); // guardamos cache
+
+        // intentar asignar thumbnails cacheadas o empezar a cachearlas
+        for (const p of this.polls) {
+          const pid = (p.pollId ?? p.id) as number;
+          try {
+            const blob = await this.offlineData.getThumbnailBlob(pid);
+            if (blob) {
+              (p as any).thumbnailUrl = URL.createObjectURL(blob);
+            } else if ((p as any).thumbnailUrl) {
+              // cachear en background y luego asignar
+              await this.offlineData.cacheThumbnail(pid, (p as any).thumbnailUrl);
+              const b2 = await this.offlineData.getThumbnailBlob(pid);
+              if (b2) (p as any).thumbnailUrl = URL.createObjectURL(b2);
+            }
+          } catch (e) {
+            // no crítico
+            console.warn('thumb processing error', e);
+          }
+        }
+
         this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error cargando encuestas', err);
+    },
+    error: async (err) => {
+      console.error('Error cargando encuestas, intentando cache', err);
+      const cached = await this.offlineData.getPolls();
+      // filtrar por stale? mostrar todos y marcar stale si quieres
+        this.polls = (cached || []).filter(p => p.questions && p.questions.length > 0);
+
+        // asignar thumbnails cacheadas si existen
+        for (const p of this.polls) {
+          const pid = (p.pollId ?? p.id) as number;
+          try {
+            const blob = await this.offlineData.getThumbnailBlob(pid);
+            if (blob) {
+              (p as any).thumbnailUrl = URL.createObjectURL(blob);
+            }
+          } catch (e) {
+            console.warn('error getting cached thumb', e);
+          }
+        }
+
         this.loading = false;
-      }
-    });
-  }
+      // opcional: mostrar toast indicando modo offline
+    }
+  });
+}
 
   /* MODAL */
   cancel() {
@@ -142,61 +182,46 @@ export class Tab1Page implements OnInit {
   }
 
   async openPollModal(id: number) {
-    const poll = this.polls.find(p => p.id === id);
+  this.activePollId = id;
+  this.pollQuestions = [];
 
-    if (poll?.status === 'closed') {
-      const alert = await this.alertController.create({
-        header: 'Encuesta cerrada',
-        message: 'Esta encuesta ya no está disponible.',
-        buttons: ['OK'],
-      });
-
-      await alert.present();
+  if (!navigator.onLine) {
+    const cached = await this.offlineData.getPoll(id);
+    if (cached) {
+      this.pollQuestions = cached.questions || [];
+      this.activePollTitle = cached.title || 'Encuesta (offline)';
+      this.modal.present();
       return;
     }
-
-    this.activePollId = id;
-    this.activePollTitle = poll?.title || 'Encuesta';
-    this.pollQuestions = [];
-
-    this.pollsService.getPollQuestions(id).subscribe({
-      next: (questions) => {
-        let loaded = 0;
-
-        if (questions.length === 0) {
-          this.pollQuestions = [];
-          this.modal.present();
-          return;
-        }
-
-        questions.forEach((q: any) => {
-          if (q.type === 'open' || q.type === 'yes-no') {
-            q.options = [];
-            loaded++;
-
-            if (loaded === questions.length) {
-              this.pollQuestions = questions;
-              this.modal.present();
-            }
-          } else {
-            this.questionService.getQuestionOptions(q.id).subscribe(options => {
-              q.options = options || [];
-              loaded++;
-
-              if (loaded === questions.length) {
-                this.pollQuestions = questions;
-                this.modal.present();
-              }
-            });
-          }
-        });
-      },
-      error: err => console.error('Error cargando preguntas', err)
-    });
+    
   }
-  sendSingleResponse(data: any): Promise<void> {
+
+  // Si hay conexión, seguir con la llamada actual a getPollQuestions()
+  // cuando recibas detalle, guarda:
+  this.pollsService.getPollQuestions(id).subscribe({
+    next: async (questions) => {
+      // construir pollDetail con preguntas si tu endpoint no devuelve todo
+      const pollDetail = { pollId: id, title: this.activePollTitle, questions };
+      await this.offlineData.savePoll(pollDetail);
+      this.pollQuestions = questions;
+      this.modal.present();
+    },
+    error: async (err) => {
+      // fallback a cache si existe
+      const cached = await this.offlineData.getPoll(id);
+      if (cached) {
+        this.pollQuestions = cached.questions || [];
+        this.activePollTitle = cached.title || 'Encuesta (offline)';
+        this.modal.present();
+      } else {
+        console.error('Error cargando preguntas y no hay cache', err);
+      }
+    }
+  });
+}
+  async sendSingleResponse(data: any): Promise<void> {
     const body: any = {
-      pollId: data.pollId,
+      pollId: data.pollId ?? data.pollId ?? data.pollId,
       questionId: data.questionId,
       userId: data.userId,
       response: data.response || ''
@@ -207,17 +232,56 @@ export class Tab1Page implements OnInit {
       body.optionId = data.optionId;
     }
 
-    console.log("📤 Enviando al backend:", body);
+    console.log('📤 Enviando al backend (o encolando):', body);
 
-    return new Promise((resolve, reject) => {
-      this.answerService.createResponse(body).subscribe({
-        next: () => resolve(),
-        error: (err) => {
-          console.error("❌ Error enviando respuesta", err);
-          reject(err);
-        }
-      });
-    });
+    // Si no hay conexión, encolar directamente
+    if (!navigator.onLine) {
+      await this.offlineData.enqueueResponse({ type: 'submitResponse', payload: body });
+      await this.updatePendingCount();
+      return;
+    }
+
+    try {
+      await firstValueFrom(this.answerService.createResponse(body));
+    } catch (err) {
+      console.error('❌ Error enviando respuesta, encolando:', err);
+      // encolar como fallback para reintento
+      try {
+        await this.offlineData.enqueueResponse({ type: 'submitResponse', payload: body });
+        await this.updatePendingCount();
+      } catch (e) {
+        console.error('Error encolando fallback', e);
+      }
+      // No lanzar error para que el flujo continue; ya quedó en cola
+    }
+  }
+
+  // Actualizar contador de pendientes
+  async updatePendingCount() {
+    try {
+      this.pendingCount = await this.offlineData.getPendingCount();
+    } catch (e) {
+      console.warn('Error getting pending count', e);
+      this.pendingCount = 0;
+    }
+  }
+
+  // Procesar la cola manualmente (botón)
+  async processQueueNow() {
+    const toast = await this.toastController.create({ message: 'Procesando cola...', duration: 2000 });
+    await toast.present();
+    try {
+      await this.offlineData.processQueue(async (payload: any) => {
+        await firstValueFrom(this.answerService.createResponse(payload));
+      }, 3);
+      await this.updatePendingCount();
+      const ok = await this.toastController.create({ message: 'Procesamiento finalizado', duration: 2000, color: 'success' });
+      await ok.present();
+    } catch (e) {
+      console.error('Error procesando cola manualmente', e);
+      const err = await this.toastController.create({ message: 'Error procesando cola', duration: 2000, color: 'danger' });
+      await err.present();
+    }
   }
 
   async submitResponses() {

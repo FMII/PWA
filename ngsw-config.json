@@ -31,7 +31,7 @@
     {
       "name": "api-cache",
       "urls": [
-        "https://dtxp3q4n-3000.usw3.devtunnels.ms/api/**"
+        "https://smartentry.space/api/**"
       ],
       "cacheConfig": {
         "maxSize": 100,
@@ -43,8 +43,8 @@
     {
       "name": "api-fresh",
       "urls": [
-        "https://dtxp3q4n-3000.usw3.devtunnels.ms/api/users",
-        "https://dtxp3q4n-3000.usw3.devtunnels.ms/api/auth/**"
+        "https://smartentry.space/api/users",
+        "https://smartentry.space/api/auth/**"
       ],
       "cacheConfig": {
         "maxSize": 50,

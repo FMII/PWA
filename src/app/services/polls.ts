@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
 })
 export class Polls {
 
-  private apiUrl = `http://localhost:3000/api/polls`;
+  private apiUrl = `${environment.apiUrl}/polls`;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 

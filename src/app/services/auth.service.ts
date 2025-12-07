@@ -26,10 +26,23 @@ export interface LoginData {
   password: string;
 }
 
+export interface LoginInitiateResponse {
+  success: boolean;
+  message: string;
+  userId: number;
+}
+
+export interface LoginVerifyData {
+  userId: number;
+  code: string;
+}
+
 export interface AuthResponse {
   data: User;
-  msg: string;
+  msg?: string;
+  message?: string;
   token?: string;
+  success?: boolean;
 }
 
 @Injectable({
@@ -65,11 +78,17 @@ export class AuthService {
   }
 
   /**
-   * Login de usuario (adaptar según tu endpoint de login)
+   * PASO 1: Iniciar login (envía código al correo)
    */
-  login(data: LoginData): Observable<AuthResponse> {
-    // Ajusta esta URL según tu endpoint de login
-    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, data)
+  loginInitiate(data: LoginData): Observable<LoginInitiateResponse> {
+    return this.http.post<LoginInitiateResponse>(`${this.apiUrl}/auth/login/initiate`, data);
+  }
+
+  /**
+   * PASO 2: Verificar código 2FA y completar login
+   */
+  loginVerify(data: LoginVerifyData): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login/verify`, data)
       .pipe(
         tap(response => {
           if (response.data) {
@@ -77,6 +96,25 @@ export class AuthService {
             this.currentUserSubject.next(response.data);
             
             // Si hay token, guardarlo
+            if (response.token) {
+              localStorage.setItem('authToken', response.token);
+            }
+          }
+        })
+      );
+  }
+
+  /**
+   * Login de usuario (método legacy - mantener por compatibilidad)
+   */
+  login(data: LoginData): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/auth/login`, data)
+      .pipe(
+        tap(response => {
+          if (response.data) {
+            localStorage.setItem('currentUser', JSON.stringify(response.data));
+            this.currentUserSubject.next(response.data);
+            
             if (response.token) {
               localStorage.setItem('authToken', response.token);
             }

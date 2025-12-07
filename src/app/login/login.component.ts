@@ -16,6 +16,11 @@ import { AuthService } from '../services/auth.service';
 export class LoginComponent implements OnInit {
   email: string = '';
   password: string = '';
+  verificationCode: string = '';
+  
+  // Control de flujo 2FA
+  userId: number | null = null;
+  showVerificationStep: boolean = false;
 
   biometricAvailable: boolean = false;
   hasBiometricCredentials: boolean = false;
@@ -41,7 +46,7 @@ export class LoginComponent implements OnInit {
   }
 
   /**
-   * Login tradicional con email y contraseña
+   * PASO 1: Iniciar login con 2FA (enviar código al correo)
    */
   async login() {
     if (!this.email || !this.password) {
@@ -52,25 +57,15 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
 
     try {
-      const response = await this.authService.login({
+      const response = await this.authService.loginInitiate({
         email: this.email,
         password: this.password
       }).toPromise();
 
-      // 🔥 GUARDAR token + userId de manera segura
-      localStorage.setItem('authToken', response?.token ?? '');
-      localStorage.setItem('userId', String(response?.data?.id ?? ''));
-
-
-      await this.showToast(`¡Bienvenido ${response?.data.firstName}! 👋`, 'success');
-
-      // Determinar destino según rol: admin -> /dashboard, usuario -> /tabs/encuestas
-      const target = this.authService.isAdmin() ? '/dashboard' : '/tabs/encuestas';
-
-      if (this.biometricAvailable && !this.hasBiometricCredentials) {
-        await this.promptBiometricRegistration(target);
-      } else {
-        this.router.navigate([target]);
+      if (response?.success) {
+        this.userId = response.userId;
+        this.showVerificationStep = true;
+        await this.showToast(response.message || 'Código enviado a tu correo', 'success');
       }
 
     } catch (error: any) {
@@ -80,6 +75,63 @@ export class LoginComponent implements OnInit {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  /**
+   * PASO 2: Verificar código 2FA y completar login
+   */
+  async verifyCode() {
+    if (!this.verificationCode || this.verificationCode.length !== 6) {
+      await this.showToast('Por favor ingresa el código de 6 dígitos', 'warning');
+      return;
+    }
+
+    if (!this.userId) {
+      await this.showToast('Error: sesión inválida', 'danger');
+      return;
+    }
+
+    this.isLoading = true;
+
+    try {
+      const response = await this.authService.loginVerify({
+        userId: this.userId,
+        code: this.verificationCode
+      }).toPromise();
+
+      if (response?.success || response?.data) {
+        // Guardar token + userId
+        localStorage.setItem('authToken', response?.token ?? '');
+        localStorage.setItem('userId', String(response?.data?.id ?? ''));
+
+        await this.showToast(`¡Bienvenido ${response?.data.firstName}! 👋`, 'success');
+
+        // Determinar destino según rol
+        const target = this.authService.isAdmin() ? '/dashboard' : '/tabs/encuestas';
+
+        if (this.biometricAvailable && !this.hasBiometricCredentials) {
+          await this.promptBiometricRegistration(target);
+        } else {
+          this.router.navigate([target]);
+        }
+      }
+
+    } catch (error: any) {
+      console.error('Error al verificar código:', error);
+      const errorMessage = error.error?.error || error.error?.message || 'Código incorrecto';
+      await this.showToast(errorMessage, 'danger');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  /**
+   * Volver a la pantalla de login (cancelar verificación)
+   */
+  backToLogin() {
+    this.showVerificationStep = false;
+    this.verificationCode = '';
+    this.userId = null;
   }
 
 

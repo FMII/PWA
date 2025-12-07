@@ -155,42 +155,6 @@ export class RegisterComponent implements OnInit {
       this.isLoading = false;
     }
   }
-    
-    if (!validation.valid) {
-      await this.showToast(validation.message!, 'warning');
-      return;
-    }
-
-    this.isLoading = true;
-
-    try {
-      // Llamar a la API para crear el usuario
-      const response = await this.authService.register({
-        email: this.email,
-        firstName: this.firstName,
-        lastName: this.lastName,
-        password: this.password,
-        roleId: this.roleId
-      }).toPromise();
-
-      await this.showToast(response?.msg || '¡Cuenta creada exitosamente! 🎉', 'success');
-
-      // Si la biometría está disponible, preguntar si quiere registrarla
-      if (this.biometricAvailable) {
-        await this.promptBiometricRegistration();
-      } else {
-        // Redirigir al dashboard o tabs
-        this.router.navigate(['/tabs']);
-      }
-
-    } catch (error: any) {
-      console.error('Error al registrar:', error);
-      const errorMessage = error.error?.error || error.error?.message || 'Error al crear la cuenta';
-      await this.showToast(errorMessage, 'danger');
-    } finally {
-      this.isLoading = false;
-    }
-  }
 
   /**
    * Preguntar si quiere habilitar biometría

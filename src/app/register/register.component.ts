@@ -130,7 +130,8 @@ export class RegisterComponent implements OnInit {
         firstName: this.firstName,
         lastName: this.lastName,
         password: this.password,
-        roleId: this.roleId
+        roleId: this.roleId,
+        turnstileToken: this.turnstileToken
       }).toPromise();
 
       if (response?.data) {

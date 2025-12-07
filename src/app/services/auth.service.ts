@@ -19,11 +19,13 @@ export interface RegisterData {
   lastName: string;
   password: string;
   roleId: number;
+  turnstileToken: string;
 }
 
 export interface LoginData {
   email: string;
   password: string;
+  turnstileToken: string;
 }
 
 export interface LoginInitiateResponse {
@@ -35,6 +37,7 @@ export interface LoginInitiateResponse {
 export interface LoginVerifyData {
   userId: number;
   code: string;
+  turnstileToken: string;
 }
 
 export interface AuthResponse {

@@ -88,7 +88,8 @@ export class LoginComponent implements OnInit {
     try {
       const response = await this.authService.loginInitiate({
         email: this.email,
-        password: this.password
+        password: this.password,
+        turnstileToken: this.turnstileToken
       }).toPromise();
 
       if (response?.success) {
@@ -134,7 +135,8 @@ export class LoginComponent implements OnInit {
     try {
       const response = await this.authService.loginVerify({
         userId: this.userId,
-        code: this.verificationCode
+        code: this.verificationCode,
+        turnstileToken: this.turnstileTokenVerify
       }).toPromise();
 
       if (response?.success || response?.data) {

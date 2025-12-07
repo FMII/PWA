@@ -41,6 +41,9 @@ export class RegisterComponent implements OnInit {
   confirmPassword: string = '';
   roleId: number = 2; // Rol por defecto (ajusta según tu sistema)
   
+  // Cloudflare Turnstile
+  turnstileToken: string = '';
+  
   biometricAvailable: boolean = false;
   isLoading: boolean = false;
   showPassword: boolean = false;
@@ -59,6 +62,17 @@ export class RegisterComponent implements OnInit {
     console.log('Biometric available in register:', this.biometricAvailable);
     console.log('Is Android:', this.biometricService.isAndroid());
     console.log('Is HTTPS:', window.location.protocol === 'https:');
+    
+    // Exponer método de Turnstile al scope global
+    (window as any).onTurnstileSuccessRegister = this.onTurnstileSuccess.bind(this);
+  }
+
+  /**
+   * Callback cuando Turnstile se completa exitosamente
+   */
+  onTurnstileSuccess(token: string) {
+    this.turnstileToken = token;
+    console.log('✅ Turnstile token (register) obtenido');
   }
 
   /**
@@ -98,6 +112,49 @@ export class RegisterComponent implements OnInit {
    */
   async register() {
     const validation = this.validateForm();
+    if (!validation.valid) {
+      await this.showToast(validation.message || 'Por favor verifica los datos', 'warning');
+      return;
+    }
+
+    if (!this.turnstileToken) {
+      await this.showToast('Por favor completa la verificación de seguridad', 'warning');
+      return;
+    }
+
+    this.isLoading = true;
+
+    try {
+      const response = await this.authService.register({
+        email: this.email,
+        firstName: this.firstName,
+        lastName: this.lastName,
+        password: this.password,
+        roleId: this.roleId
+      }).toPromise();
+
+      if (response?.data) {
+        await this.showToast(`¡Bienvenido ${response.data.firstName}! Cuenta creada exitosamente 🎉`, 'success');
+
+        // Si biometría está disponible, preguntar si quiere habilitarla
+        if (this.biometricAvailable) {
+          await this.promptBiometricRegistration();
+        } else {
+          this.router.navigate(['/tabs/encuestas']);
+        }
+      }
+
+    } catch (error: any) {
+      console.error('Error al registrar usuario:', error);
+      const errorMessage = error.error?.error || error.error?.message || 'Error al crear la cuenta';
+      await this.showToast(errorMessage, 'danger');
+      // Reset Turnstile en caso de error
+      this.turnstileToken = '';
+      (window as any).turnstile?.reset();
+    } finally {
+      this.isLoading = false;
+    }
+  }
     
     if (!validation.valid) {
       await this.showToast(validation.message!, 'warning');

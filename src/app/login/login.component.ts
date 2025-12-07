@@ -22,6 +22,10 @@ export class LoginComponent implements OnInit {
   userId: number | null = null;
   showVerificationStep: boolean = false;
 
+  // Cloudflare Turnstile
+  turnstileToken: string = '';
+  turnstileTokenVerify: string = '';
+
   biometricAvailable: boolean = false;
   hasBiometricCredentials: boolean = false;
   isLoading: boolean = false;
@@ -43,6 +47,26 @@ export class LoginComponent implements OnInit {
     console.log('Has credentials:', this.hasBiometricCredentials);
     console.log('Is Android:', this.biometricService.isAndroid());
     console.log('Protocol:', window.location.protocol);
+
+    // Exponer métodos de Turnstile al scope global
+    (window as any).onTurnstileSuccess = this.onTurnstileSuccess.bind(this);
+    (window as any).onTurnstileSuccessVerify = this.onTurnstileSuccessVerify.bind(this);
+  }
+
+  /**
+   * Callback cuando Turnstile se completa exitosamente (Paso 1: Login)
+   */
+  onTurnstileSuccess(token: string) {
+    this.turnstileToken = token;
+    console.log('✅ Turnstile token (login) obtenido');
+  }
+
+  /**
+   * Callback cuando Turnstile se completa exitosamente (Paso 2: Verificación)
+   */
+  onTurnstileSuccessVerify(token: string) {
+    this.turnstileTokenVerify = token;
+    console.log('✅ Turnstile token (verify) obtenido');
   }
 
   /**
@@ -51,6 +75,11 @@ export class LoginComponent implements OnInit {
   async login() {
     if (!this.email || !this.password) {
       await this.showToast('Por favor completa todos los campos', 'warning');
+      return;
+    }
+
+    if (!this.turnstileToken) {
+      await this.showToast('Por favor completa la verificación de seguridad', 'warning');
       return;
     }
 
@@ -65,6 +94,7 @@ export class LoginComponent implements OnInit {
       if (response?.success) {
         this.userId = response.userId;
         this.showVerificationStep = true;
+        this.turnstileToken = ''; // Reset token
         await this.showToast(response.message || 'Código enviado a tu correo', 'success');
       }
 
@@ -72,6 +102,9 @@ export class LoginComponent implements OnInit {
       console.error('Error al iniciar sesión:', error);
       const errorMessage = error.error?.error || error.error?.message || 'Credenciales incorrectas';
       await this.showToast(errorMessage, 'danger');
+      // Reset Turnstile en caso de error
+      this.turnstileToken = '';
+      (window as any).turnstile?.reset();
     } finally {
       this.isLoading = false;
     }
@@ -88,6 +121,11 @@ export class LoginComponent implements OnInit {
 
     if (!this.userId) {
       await this.showToast('Error: sesión inválida', 'danger');
+      return;
+    }
+
+    if (!this.turnstileTokenVerify) {
+      await this.showToast('Por favor completa la verificación de seguridad', 'warning');
       return;
     }
 
@@ -120,6 +158,9 @@ export class LoginComponent implements OnInit {
       console.error('Error al verificar código:', error);
       const errorMessage = error.error?.error || error.error?.message || 'Código incorrecto';
       await this.showToast(errorMessage, 'danger');
+      // Reset Turnstile en caso de error
+      this.turnstileTokenVerify = '';
+      (window as any).turnstile?.reset('.cf-turnstile-verify');
     } finally {
       this.isLoading = false;
     }
@@ -132,6 +173,11 @@ export class LoginComponent implements OnInit {
     this.showVerificationStep = false;
     this.verificationCode = '';
     this.userId = null;
+    this.turnstileTokenVerify = '';
+    // Reset del widget de Turnstile para verificación
+    setTimeout(() => {
+      (window as any).turnstile?.reset('.cf-turnstile');
+    }, 100);
   }
 
 

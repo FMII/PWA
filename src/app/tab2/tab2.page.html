@@ -1,17 +1,22 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Tab 2
-    </ion-title>
+    <ion-title>Perfil</ion-title>
   </ion-toolbar>
 </ion-header>
+ 
+<ion-content class="ion-padding">
+  <ion-card *ngIf="user">
+    <ion-card-header>
+      <ion-card-title>{{ user.firstName }} {{ user.lastName }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p><strong>Correo:</strong> {{ user.email }}</p>
+    </ion-card-content>
+  </ion-card>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <div *ngIf="!user" class="ion-padding">
+    <p>No hay usuario autenticado.</p>
+  </div>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+  <ion-button expand="block" color="danger" (click)="logout()">Cerrar sesión</ion-button>
 </ion-content>

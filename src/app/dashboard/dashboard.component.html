@@ -1,4 +1,4 @@
-<div class="row min-vh-100">
+<div class="row min-vh-100" style="height:100vh; overflow:auto;">
   <div class="col-md-2 p-0 border-end d-flex flex-column" id="minimalSidebar">
     <div class="p-2 border-bottom text-center">
       <p class="fw-bold mb-0">Encuestas</p>
@@ -11,7 +11,7 @@
       </a>
 
       <a class="nav-link text-dark rounded-2 mb-1 py-1 px-3" href="admin/encuestas">
-        <i class="bi bi-gear-fill me-2"></i> 
+        <i class="bi bi-gear-fill me-2"></i>
         Encuestas
       </a>
 
@@ -36,7 +36,9 @@
               <div class="card-header">
                 <p class="mb-0">Encuestas Totales</p>
               </div>
-              <div class="card-body"></div>
+              <div class="card-body text-center">
+                <h3 class="mb-0">{{ stats?.total ?? '-' }}</h3>
+              </div>
             </div>
           </div>
           <div class="col-md-4">
@@ -44,15 +46,19 @@
               <div class="card-header">
                 <p class="mb-0">Encuestas Activas</p>
               </div>
-              <div class="card-body"></div>
+              <div class="card-body text-center">
+                <h3 class="mb-0">{{ stats?.open ?? '-' }}</h3>
+              </div>
             </div>
           </div>
           <div class="col-md-4">
             <div class="card">
               <div class="card-header">
-                <p class="mb-0">Encuestas Inactivas</p>
+                <p class="mb-0">Encuestas Cerradas</p>
               </div>
-              <div class="card-body"></div>
+              <div class="card-body text-center">
+                <h3 class="mb-0">{{ stats?.closed ?? '-' }}</h3>
+              </div>
             </div>
           </div>
           <div class="col-md-12">
@@ -61,7 +67,26 @@
                 <p class="mb-0">Gráfica</p>
               </div>
               <div class="card-body">
-
+                <div class="d-flex gap-3 align-items-center mb-3">
+                  <div>
+                    <label for="pollSelect" class="form-label">Seleccionar encuesta:</label>
+                    <select id="pollSelect" class="form-select" [(ngModel)]="selectedPollId"
+                      (ngModelChange)="loadQuestionsForSelectedPoll($event)">
+                      <option *ngFor="let p of polls" [ngValue]="p.id">{{ p.title }}</option>
+                    </select>
+                  </div>
+                  <div *ngIf="questions?.length">
+                    <label for="questionSelect" class="form-label">Pregunta:</label>
+                    <select id="questionSelect" class="form-select" [(ngModel)]="selectedQuestionId">
+                      <option *ngFor="let q of questions" [ngValue]="q.id">{{ q.text || q.title || ('Pregunta ' + q.id)
+                        }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-center align-items-center" *ngIf="selectedPollId !== null">
+                  <poll-chart [pollId]="selectedPollId!" [(selectedQuestionId)]="selectedQuestionId"></poll-chart>
+                </div>
               </div>
             </div>
           </div>
@@ -71,7 +96,7 @@
                 <p class="mb-0">Tabla</p>
                 <button class="btn btn-open" id="openModalBtn">Crear encuesta</button>
               </div>
-              <div class="card-body p-0">
+              <div class="card-body p-0" style="max-height:60vh; overflow:auto;">
                 <table style="font-size: 14px;" class="table">
                   <thead>
                     <tr>
@@ -93,6 +118,7 @@
                         <button class="btn btn-warning btn-sm" (click)="openEditModal(poll)">
                           Editar
                         </button>
+                        <!-- resultado seleccionado desde la tarjeta de la gráfica -->
                       </td>
                     </tr>
                   </tbody>
@@ -105,6 +131,10 @@
       </div>
     </div>
   </div>
+</div>
+
+<div id="resultsArea" class="p-3">
+  <poll-chart *ngIf="selectedPollId !== null" [pollId]="selectedPollId!"></poll-chart>
 </div>
 
 <!-- MODAL -->
@@ -130,7 +160,7 @@
       <select id="status">
         <option value="">Selecciona estado</option>
         <option value="active">Activa</option>
-        <option value="inactive">Inactiva</option>
+        <option value="closed">Cerrada</option>
       </select>
     </div>
 

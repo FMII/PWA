@@ -61,6 +61,11 @@ export class Polls {
     return this.http.get<any[]>(`${this.apiUrl}/${id}/responses`, { headers: this.getHeaders() });
   }
 
+  // GET /api/polls/stats - totals: total, open (active), closed
+  getStats(): Observable<{ total: number; open: number; closed: number }> {
+    return this.http.get<{ total: number; open: number; closed: number }>(`${this.apiUrl}/stats`, { headers: this.getHeaders() });
+  }
+
   // GET /api/polls/user/:userId
   getPollsByUser(userId: number): Observable<Poll[]> {
     return this.http.get<Poll[]>(`${this.apiUrl}/user/${userId}`, { headers: this.getHeaders() });

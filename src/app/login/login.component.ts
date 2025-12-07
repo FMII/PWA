@@ -64,10 +64,13 @@ export class LoginComponent implements OnInit {
 
       await this.showToast(`¡Bienvenido ${response?.data.firstName}! 👋`, 'success');
 
+      // Determinar destino según rol: admin -> /dashboard, usuario -> /tabs/encuestas
+      const target = this.authService.isAdmin() ? '/dashboard' : '/tabs/encuestas';
+
       if (this.biometricAvailable && !this.hasBiometricCredentials) {
-        await this.promptBiometricRegistration();
+        await this.promptBiometricRegistration(target);
       } else {
-        this.router.navigate(['/tabs']);
+        this.router.navigate([target]);
       }
 
     } catch (error: any) {
@@ -83,7 +86,7 @@ export class LoginComponent implements OnInit {
   /**
    * Preguntar al usuario si quiere registrar biometría
    */
-  async promptBiometricRegistration() {
+  async promptBiometricRegistration(target: string) {
     const alert = await this.alertController.create({
       header: '¿Habilitar inicio rápido?',
       message: '¿Quieres usar Face ID / Touch ID / Huella digital para iniciar sesión más rápido?',
@@ -92,13 +95,13 @@ export class LoginComponent implements OnInit {
           text: 'No, gracias',
           role: 'cancel',
           handler: () => {
-            this.router.navigate(['/tabs']);
+            this.router.navigate([target]);
           }
         },
         {
           text: 'Sí, habilitar',
           handler: async () => {
-            await this.registerBiometric();
+            await this.registerBiometric(target);
           }
         }
       ]
@@ -110,7 +113,7 @@ export class LoginComponent implements OnInit {
   /**
    * Registrar credencial biométrica
    */
-  async registerBiometric() {
+  async registerBiometric(target: string) {
     this.isLoading = true;
 
     try {
@@ -122,12 +125,12 @@ export class LoginComponent implements OnInit {
       if (success) {
         this.hasBiometricCredentials = true;
         await this.showToast('¡Autenticación biométrica activada! 🎉', 'success');
-        this.router.navigate(['/tabs']);
+        this.router.navigate([target]);
       }
     } catch (error: any) {
       console.error('Error registrando biometría:', error);
       await this.showToast(error.message || 'Error al configurar biometría', 'danger');
-      this.router.navigate(['/tabs']);
+      this.router.navigate([target]);
     } finally {
       this.isLoading = false;
     }
@@ -145,7 +148,9 @@ export class LoginComponent implements OnInit {
       if (result.success) {
         await this.showToast(`¡Bienvenido ${result.username}! 👋`, 'success');
         // Aquí puedes validar con tu backend si es necesario
-        this.router.navigate(['/tabs']);
+        // Si el usuario ya está cargado en AuthService, redirigir según rol; si no, ir a encuestas
+        const target = this.authService.isAuthenticated() && this.authService.isAdmin() ? '/dashboard' : '/tabs/encuestas';
+        this.router.navigate([target]);
       } else {
         await this.showToast('No se pudo autenticar', 'danger');
       }

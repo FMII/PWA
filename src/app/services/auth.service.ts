@@ -114,4 +114,54 @@ export class AuthService {
   getAuthToken(): string | null {
     return localStorage.getItem('authToken');
   }
+
+  /**
+   * Decodificar payload de un JWT (si el token es JWT)
+   */
+  private decodeJwtPayload(token: string): any | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      const payload = parts[1];
+      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decodeURIComponent(escape(decoded)));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * Verificar si el token está caducado (solo para JWT con claim `exp`)
+   */
+  isTokenExpired(): boolean {
+    const token = this.getAuthToken();
+    if (!token) return true;
+    const payload = this.decodeJwtPayload(token);
+    if (!payload || !payload.exp) return false; // si no tiene exp, no asumimos expirado
+    const now = Math.floor(Date.now() / 1000);
+    return now >= payload.exp;
+  }
+
+  /**
+   * Comprueba si el token es válido (no expirado)
+   */
+  isTokenValid(): boolean {
+    const token = this.getAuthToken();
+    if (!token) return false;
+    // Si tiene exp y no está caducado -> válido. Si no tiene exp, consideramos válido mientras exista.
+    const payload = this.decodeJwtPayload(token);
+    if (payload && payload.exp) {
+      return !this.isTokenExpired();
+    }
+    return true;
+  }
+
+  /**
+   * Verificar si el usuario actual es admin
+   * Ajusta la comparación de `roleId` según tu sistema (por ejemplo, 1 = admin)
+   */
+  isAdmin(): boolean {
+    const user = this.getCurrentUser();
+    return user !== null && user.roleId === 1;
+  }
 }

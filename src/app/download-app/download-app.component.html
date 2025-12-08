@@ -1,0 +1,42 @@
+<ion-content class="ion-padding ion-text-center">
+  <div class="download-container">
+    <ion-icon name="phone-portrait-outline" size="large" style="color: #973661; font-size: 120px;"></ion-icon>
+    
+    <ion-text class="momo-signature-regular" style="color: #973661;">
+      <h1>Descarga la App</h1>
+    </ion-text>
+
+    <ion-text color="medium">
+      <p style="font-size: 1.1em; margin: 20px 0;">
+        Esta aplicación está diseñada para dispositivos móviles.
+      </p>
+      <p style="font-size: 1em;">
+        Por favor, accede desde tu teléfono o tablet para disfrutar de la mejor experiencia.
+      </p>
+    </ion-text>
+
+    <ion-button 
+      expand="block" 
+      style="--background: #973661; margin-top: 30px;"
+      (click)="installPWA()">
+      <ion-icon name="download-outline" slot="start"></ion-icon>
+      Cómo Instalar
+    </ion-button>
+
+    <ion-button 
+      expand="block" 
+      fill="outline"
+      style="--border-color: #973661; --color: #973661; margin-top: 10px;"
+      (click)="logout()">
+      <ion-icon name="log-out-outline" slot="start"></ion-icon>
+      Cerrar Sesión
+    </ion-button>
+
+    <div style="margin-top: 40px;">
+      <ion-text color="medium" style="font-size: 0.9em;">
+        <p>💡 <strong>Tip:</strong> Escanea este QR con tu móvil</p>
+      </ion-text>
+      <!-- Aquí podrías agregar un QR code con la URL -->
+    </div>
+  </div>
+</ion-content>

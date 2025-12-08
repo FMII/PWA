@@ -1,0 +1,18 @@
+.download-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 2em;
+  margin: 20px 0;
+}
+
+p {
+  max-width: 500px;
+  line-height: 1.6;
+}

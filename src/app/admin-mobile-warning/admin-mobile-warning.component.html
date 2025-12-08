@@ -1,0 +1,26 @@
+<ion-content class="ion-padding ion-text-center">
+  <div class="warning-container">
+    <ion-icon name="desktop-outline" size="large" style="color: #973661; font-size: 120px;"></ion-icon>
+    
+    <ion-text class="momo-signature-regular" style="color: #973661;">
+      <h1>Panel Administrativo</h1>
+    </ion-text>
+
+    <ion-text color="medium">
+      <p style="font-size: 1.1em; margin: 20px 0;">
+        El panel de administración solo está disponible desde un navegador web de escritorio.
+      </p>
+      <p style="font-size: 1em;">
+        Por favor, accede desde tu computadora para administrar el sistema.
+      </p>
+    </ion-text>
+
+    <ion-button 
+      expand="block" 
+      style="--background: #973661; margin-top: 30px;"
+      (click)="logout()">
+      <ion-icon name="log-out-outline" slot="start"></ion-icon>
+      Cerrar Sesión
+    </ion-button>
+  </div>
+</ion-content>

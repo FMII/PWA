@@ -314,20 +314,19 @@ export class LoginComponent implements OnInit {
       const result = await this.biometricService.authenticateBiometric();
 
       if (result.success && result.username) {
-        // Ahora necesitamos hacer login real con el backend
-        // Necesitaríamos guardar la contraseña o usar un método especial
-        // Por ahora, solo redirigir si ya tiene sesión activa
-        
+        // Verificar si tiene sesión activa válida
         const token = localStorage.getItem('authToken');
         const userId = localStorage.getItem('userId');
         
         if (token && userId) {
-          await this.showToast(`¡Bienvenido ${result.username}! 👋`, 'success');
+          // Sesión activa - redirigir directamente
+          await this.showToast(`¡Bienvenido de nuevo! 👋`, 'success');
           const target = this.authService.isAdmin() ? '/dashboard' : '/tabs/encuestas';
           this.router.navigate([target]);
         } else {
-          await this.showToast('Por favor inicia sesión con tu contraseña', 'warning');
+          // No hay sesión - pre-llenar email y mostrar mensaje
           this.email = result.username;
+          await this.showToast(`Hola ${result.username.split('@')[0]}! 👋 Por favor ingresa tu contraseña`, 'success');
         }
       } else {
         await this.showToast('No se pudo autenticar', 'danger');

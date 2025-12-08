@@ -5,8 +5,12 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AdminLoginComponent } from './admin-login/admin-login.component';
 import { authGuard } from './guards/auth-guard';
 import { guestGuard } from './guards/guest-guard';
+import { deviceRoleGuard } from './guards/device-role-guard';
 import { PollQuestionsComponent } from './poll-questions/poll-questions.component';
 import { PollQuestionComponent } from './poll-question/poll-question.component';
+import { AdminMobileWarningComponent } from './admin-mobile-warning/admin-mobile-warning.component';
+import { DownloadAppComponent } from './download-app/download-app.component';
+
 export const routes: Routes = [
   {
     path: '',
@@ -28,25 +32,33 @@ export const routes: Routes = [
     component: AdminLoginComponent,
   },
   {
+    path: 'admin-mobile-warning',
+    component: AdminMobileWarningComponent
+  },
+  {
+    path: 'download-app',
+    component: DownloadAppComponent
+  },
+  {
     path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, deviceRoleGuard],
     data: { requiresAdmin: true }
   },
   {
     path: 'admin/encuestas',
     component: PollQuestionsComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, deviceRoleGuard],
     data: { requiresAdmin: true }
   },
   {
     path: 'encuesta/:id',
     component: PollQuestionComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, deviceRoleGuard],
   },
   {
     path: 'tabs',
-    canActivate: [authGuard],
+    canActivate: [authGuard, deviceRoleGuard],
     loadChildren: () => import('./tabs/tabs.routes').then((m) => m.routes),
   },
   {

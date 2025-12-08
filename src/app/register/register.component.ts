@@ -63,8 +63,10 @@ export class RegisterComponent implements OnInit {
     console.log('Is Android:', this.biometricService.isAndroid());
     console.log('Is HTTPS:', window.location.protocol === 'https:');
     
-    // Exponer método de Turnstile al scope global
-    (window as any).onTurnstileSuccessRegister = this.onTurnstileSuccess.bind(this);
+    // Renderizar Turnstile después de que el DOM cargue
+    setTimeout(() => {
+      this.renderTurnstile();
+    }, 500);
   }
 
   /**
@@ -73,6 +75,40 @@ export class RegisterComponent implements OnInit {
   onTurnstileSuccess(token: string) {
     this.turnstileToken = token;
     console.log('✅ Turnstile token (register) obtenido');
+  }
+
+  /**
+   * Renderizar widget de Turnstile
+   */
+  renderTurnstile() {
+    const container = document.getElementById('turnstile-register-container');
+    
+    if (!container) {
+      console.error('❌ Contenedor de Turnstile no encontrado');
+      return;
+    }
+
+    if (!(window as any).turnstile) {
+      console.log('⏳ Esperando script de Turnstile...');
+      setTimeout(() => this.renderTurnstile(), 500);
+      return;
+    }
+
+    container.innerHTML = '';
+
+    try {
+      (window as any).turnstile.render('#turnstile-register-container', {
+        sitekey: '0x4AAAAAACFTGe-2VlmzzEzV',
+        callback: (token: string) => {
+          this.turnstileToken = token;
+          console.log('✅ Turnstile token (register) obtenido');
+        },
+        theme: 'light'
+      });
+      console.log('✅ Widget de Turnstile renderizado');
+    } catch (error) {
+      console.error('❌ Error al renderizar Turnstile:', error);
+    }
   }
 
   /**
@@ -113,12 +149,7 @@ export class RegisterComponent implements OnInit {
   async register() {
     const validation = this.validateForm();
     if (!validation.valid) {
-      await this.showToast(validation.message || 'Por favor verifica los datos', 'warning');
-      return;
-    }
-
-    if (!this.turnstileToken) {
-      await this.showToast('Por favor completa la verificación de seguridad', 'warning');
+      await this.showToast(validation.message || 'Por favor completa todos los campos', 'warning');
       return;
     }
 

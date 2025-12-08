@@ -51,9 +51,9 @@
         class="ion-margin-top" 
         style="--background: #973661; --background-activated: #c15485;"
         (click)="login()"
-        [disabled]="isLoading">
+        [disabled]="isLoading || !turnstileToken">
         <ion-icon *ngIf="isLoading" name="hourglass-outline" slot="start"></ion-icon>
-        {{ isLoading ? 'Enviando código...' : 'Continuar' }}
+        {{ isLoading ? 'Enviando código...' : (turnstileToken ? 'Continuar' : 'Cargando...') }}
       </ion-button>
     </div>
 
@@ -91,9 +91,9 @@
         class="ion-margin-top" 
         style="--background: #973661; --background-activated: #c15485;"
         (click)="verifyCode()"
-        [disabled]="isLoading">
+        [disabled]="isLoading || !turnstileTokenVerify">
         <ion-icon *ngIf="isLoading" name="hourglass-outline" slot="start"></ion-icon>
-        {{ isLoading ? 'Verificando...' : 'Verificar código' }}
+        {{ isLoading ? 'Verificando...' : (turnstileTokenVerify ? 'Verificar código' : 'Cargando...') }}
       </ion-button>
 
       <ion-button 

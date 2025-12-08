@@ -48,9 +48,10 @@ export class LoginComponent implements OnInit {
     console.log('Is Android:', this.biometricService.isAndroid());
     console.log('Protocol:', window.location.protocol);
 
-    // Exponer métodos de Turnstile al scope global
-    (window as any).onTurnstileSuccess = this.onTurnstileSuccess.bind(this);
-    (window as any).onTurnstileSuccessVerify = this.onTurnstileSuccessVerify.bind(this);
+    // Renderizar Turnstile del paso 1
+    setTimeout(() => {
+      this.renderLoginTurnstile();
+    }, 500);
   }
 
   /**
@@ -75,11 +76,6 @@ export class LoginComponent implements OnInit {
   async login() {
     if (!this.email || !this.password) {
       await this.showToast('Por favor completa todos los campos', 'warning');
-      return;
-    }
-
-    if (!this.turnstileToken) {
-      await this.showToast('Por favor completa la verificación de seguridad', 'warning');
       return;
     }
 
@@ -131,11 +127,6 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    if (!this.turnstileTokenVerify) {
-      await this.showToast('Por favor completa la verificación de seguridad', 'warning');
-      return;
-    }
-
     this.isLoading = true;
 
     try {
@@ -182,10 +173,38 @@ export class LoginComponent implements OnInit {
     this.verificationCode = '';
     this.userId = null;
     this.turnstileTokenVerify = '';
-    // Reset del widget de Turnstile para verificación
+    this.turnstileToken = '';
+    
+    // Re-renderizar el primer widget de Turnstile
     setTimeout(() => {
-      (window as any).turnstile?.reset('.cf-turnstile');
+      this.renderLoginTurnstile();
     }, 100);
+  }
+
+  /**
+   * Renderizar widget de Turnstile para el paso de login
+   */
+  renderLoginTurnstile() {
+    const widgets = document.querySelectorAll('.cf-turnstile');
+    if (widgets.length > 0) {
+      const container = widgets[0] as HTMLElement;
+      container.innerHTML = '';
+      
+      if ((window as any).turnstile) {
+        try {
+          (window as any).turnstile.render(container, {
+            sitekey: '0x4AAAAAACFTGe-2VlmzzEzV',
+            callback: (token: string) => {
+              this.turnstileToken = token;
+              console.log('✅ Turnstile token (login) obtenido');
+            },
+            theme: 'light'
+          });
+        } catch (error) {
+          console.error('❌ Error al re-renderizar Turnstile login:', error);
+        }
+      }
+    }
   }
 
   /**

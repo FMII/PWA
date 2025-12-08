@@ -80,20 +80,16 @@
     </ion-list>
 
     <!-- Cloudflare Turnstile -->
-    <div class="cf-turnstile ion-margin-top" 
-         data-sitekey="0x4AAAAAACFTGe-2VlmzzEzV" 
-         data-callback="onTurnstileSuccessRegister"
-         data-theme="light">
-    </div>
+    <div id="turnstile-register-container" class="ion-margin-top"></div>
 
     <ion-button 
       expand="block" 
       class="ion-margin-top" 
       style="--background: #973661; --background-activated: #c15485;"
       (click)="register()"
-      [disabled]="isLoading">
+      [disabled]="isLoading || !turnstileToken">
       <ion-icon *ngIf="isLoading" name="hourglass-outline" slot="start"></ion-icon>
-      {{ isLoading ? 'Creando cuenta...' : 'Crear Cuenta' }}
+      {{ isLoading ? 'Creando cuenta...' : (turnstileToken ? 'Crear Cuenta' : 'Cargando...') }}
     </ion-button>
 
     <!-- Mensaje sobre biometría -->

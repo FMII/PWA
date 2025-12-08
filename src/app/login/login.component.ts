@@ -39,6 +39,13 @@ export class LoginComponent implements OnInit {
   ) { }
 
   async ngOnInit() {
+    // Limpiar estado de verificación al cargar (por si viene de logout)
+    this.showVerificationStep = false;
+    this.verificationCode = '';
+    this.userId = null;
+    this.email = '';
+    this.password = '';
+    
     // Verificar si la biometría está disponible
     this.biometricAvailable = await this.biometricService.isPlatformAuthenticatorAvailable();
     this.hasBiometricCredentials = this.biometricService.hasRegisteredCredentials();

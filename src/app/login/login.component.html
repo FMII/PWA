@@ -109,7 +109,7 @@
 
     <!-- Botón de login biométrico -->
     <ion-button
-      *ngIf="biometricAvailable && hasBiometricCredentials"
+      *ngIf="!showVerificationStep && biometricAvailable && hasBiometricCredentials"
       expand="block"
       fill="outline"
       class="ion-margin-top biometric-button"
@@ -121,7 +121,7 @@
     </ion-button>
 
     <!-- Mensaje si biometría está disponible pero no registrada -->
-    <div *ngIf="biometricAvailable && !hasBiometricCredentials" class="ion-text-center ion-margin-top">
+    <div *ngIf="!showVerificationStep && biometricAvailable && !hasBiometricCredentials" class="ion-text-center ion-margin-top">
       <ion-text color="medium">
         <p style="font-size: 0.9em;">
           💡 Después de iniciar sesión podrás habilitar Face ID / Huella digital
@@ -130,6 +130,7 @@
     </div>
 
     <ion-button
+      *ngIf="!showVerificationStep"
       expand="block"
       class="ion-margin-top outline-button"
       routerLink="/register"
@@ -139,7 +140,7 @@
 
     <!-- Opción para desactivar biometría (solo visible si está activada) -->
     <ion-button
-      *ngIf="hasBiometricCredentials"
+      *ngIf="!showVerificationStep && hasBiometricCredentials"
       expand="block"
       fill="clear"
       size="small"

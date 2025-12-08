@@ -105,9 +105,12 @@ export class LoginComponent implements OnInit {
       console.error('Error al iniciar sesión:', error);
       const errorMessage = error.error?.error || error.error?.message || 'Credenciales incorrectas';
       await this.showToast(errorMessage, 'danger');
-      // Reset Turnstile en caso de error
+      
+      // Reset token y re-renderizar Turnstile
       this.turnstileToken = '';
-      (window as any).turnstile?.reset();
+      setTimeout(() => {
+        this.renderLoginTurnstile();
+      }, 100);
     } finally {
       this.isLoading = false;
     }
@@ -157,9 +160,12 @@ export class LoginComponent implements OnInit {
       console.error('Error al verificar código:', error);
       const errorMessage = error.error?.error || error.error?.message || 'Código incorrecto';
       await this.showToast(errorMessage, 'danger');
-      // Reset Turnstile en caso de error
+      
+      // Reset token y re-renderizar Turnstile
       this.turnstileTokenVerify = '';
-      (window as any).turnstile?.reset('.cf-turnstile-verify');
+      setTimeout(() => {
+        this.renderVerifyTurnstile();
+      }, 100);
     } finally {
       this.isLoading = false;
     }
@@ -307,12 +313,22 @@ export class LoginComponent implements OnInit {
     try {
       const result = await this.biometricService.authenticateBiometric();
 
-      if (result.success) {
-        await this.showToast(`¡Bienvenido ${result.username}! 👋`, 'success');
-        // Aquí puedes validar con tu backend si es necesario
-        // Si el usuario ya está cargado en AuthService, redirigir según rol; si no, ir a encuestas
-        const target = this.authService.isAuthenticated() && this.authService.isAdmin() ? '/dashboard' : '/tabs/encuestas';
-        this.router.navigate([target]);
+      if (result.success && result.username) {
+        // Ahora necesitamos hacer login real con el backend
+        // Necesitaríamos guardar la contraseña o usar un método especial
+        // Por ahora, solo redirigir si ya tiene sesión activa
+        
+        const token = localStorage.getItem('authToken');
+        const userId = localStorage.getItem('userId');
+        
+        if (token && userId) {
+          await this.showToast(`¡Bienvenido ${result.username}! 👋`, 'success');
+          const target = this.authService.isAdmin() ? '/dashboard' : '/tabs/encuestas';
+          this.router.navigate([target]);
+        } else {
+          await this.showToast('Por favor inicia sesión con tu contraseña', 'warning');
+          this.email = result.username;
+        }
       } else {
         await this.showToast('No se pudo autenticar', 'danger');
       }

@@ -43,8 +43,15 @@ export class LoginComponent implements OnInit {
     this.biometricAvailable = await this.biometricService.isPlatformAuthenticatorAvailable();
     this.hasBiometricCredentials = this.biometricService.hasRegisteredCredentials();
 
+    // Solo mostrar biometría si hay sesión activa
+    const hasActiveSession = !!localStorage.getItem('authToken');
+    if (!hasActiveSession) {
+      this.hasBiometricCredentials = false;
+    }
+
     console.log('Biometric available:', this.biometricAvailable);
     console.log('Has credentials:', this.hasBiometricCredentials);
+    console.log('Has active session:', hasActiveSession);
     console.log('Is Android:', this.biometricService.isAndroid());
     console.log('Protocol:', window.location.protocol);
 
@@ -311,23 +318,22 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
 
     try {
+      // Validar que haya sesión activa
+      const token = localStorage.getItem('authToken');
+      const userId = localStorage.getItem('userId');
+      
+      if (!token || !userId) {
+        await this.showToast('Primero inicia sesión con tu contraseña para habilitar biometría', 'warning');
+        this.isLoading = false;
+        return;
+      }
+
       const result = await this.biometricService.authenticateBiometric();
 
-      if (result.success && result.username) {
-        // Verificar si tiene sesión activa válida
-        const token = localStorage.getItem('authToken');
-        const userId = localStorage.getItem('userId');
-        
-        if (token && userId) {
-          // Sesión activa - redirigir directamente
-          await this.showToast(`¡Bienvenido de nuevo! 👋`, 'success');
-          const target = this.authService.isAdmin() ? '/dashboard' : '/tabs/encuestas';
-          this.router.navigate([target]);
-        } else {
-          // No hay sesión - pre-llenar email y mostrar mensaje
-          this.email = result.username;
-          await this.showToast(`Hola ${result.username.split('@')[0]}! 👋 Por favor ingresa tu contraseña`, 'success');
-        }
+      if (result.success) {
+        await this.showToast(`¡Bienvenido de nuevo! 👋`, 'success');
+        const target = this.authService.isAdmin() ? '/dashboard' : '/tabs/encuestas';
+        this.router.navigate([target]);
       } else {
         await this.showToast('No se pudo autenticar', 'danger');
       }

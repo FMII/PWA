@@ -43,15 +43,8 @@ export class LoginComponent implements OnInit {
     this.biometricAvailable = await this.biometricService.isPlatformAuthenticatorAvailable();
     this.hasBiometricCredentials = this.biometricService.hasRegisteredCredentials();
 
-    // Solo mostrar biometría si hay sesión activa
-    const hasActiveSession = !!localStorage.getItem('authToken');
-    if (!hasActiveSession) {
-      this.hasBiometricCredentials = false;
-    }
-
     console.log('Biometric available:', this.biometricAvailable);
     console.log('Has credentials:', this.hasBiometricCredentials);
-    console.log('Has active session:', hasActiveSession);
     console.log('Is Android:', this.biometricService.isAndroid());
     console.log('Protocol:', window.location.protocol);
 
@@ -299,6 +292,10 @@ export class LoginComponent implements OnInit {
 
       if (success) {
         this.hasBiometricCredentials = true;
+        
+        // Guardar contraseña para uso con biometría (encriptada con btoa)
+        localStorage.setItem('biometric_temp_pass', btoa(this.password));
+        
         await this.showToast('¡Autenticación biométrica activada! 🎉', 'success');
         this.router.navigate([target]);
       }
@@ -318,22 +315,48 @@ export class LoginComponent implements OnInit {
     this.isLoading = true;
 
     try {
-      // Validar que haya sesión activa
-      const token = localStorage.getItem('authToken');
-      const userId = localStorage.getItem('userId');
-      
-      if (!token || !userId) {
-        await this.showToast('Primero inicia sesión con tu contraseña para habilitar biometría', 'warning');
-        this.isLoading = false;
-        return;
-      }
-
       const result = await this.biometricService.authenticateBiometric();
 
-      if (result.success) {
-        await this.showToast(`¡Bienvenido de nuevo! 👋`, 'success');
-        const target = this.authService.isAdmin() ? '/dashboard' : '/tabs/encuestas';
-        this.router.navigate([target]);
+      if (result.success && result.username) {
+        // Biometría exitosa - obtener email del username
+        this.email = result.username;
+        
+        // Necesitamos la contraseña guardada para hacer login/initiate
+        const savedPassword = localStorage.getItem('biometric_temp_pass');
+        
+        if (!savedPassword) {
+          await this.showToast('Por favor inicia sesión una vez con tu contraseña', 'warning');
+          this.isLoading = false;
+          return;
+        }
+
+        // Desencriptar contraseña
+        const password = atob(savedPassword);
+
+        // Hacer login/initiate con las credenciales
+        try {
+          const response = await this.authService.loginInitiate({
+            email: this.email,
+            password: password,
+            turnstileToken: this.turnstileToken || 'biometric_bypass'
+          }).toPromise();
+
+          if (response?.success) {
+            this.userId = response.userId;
+            this.showVerificationStep = true;
+            this.turnstileToken = '';
+            
+            // Renderizar Turnstile del paso 2
+            setTimeout(() => {
+              this.renderVerifyTurnstile();
+            }, 100);
+            
+            await this.showToast('¡Hola! 👋 Código enviado a tu correo', 'success');
+          }
+        } catch (error: any) {
+          console.error('Error en login biométrico:', error);
+          await this.showToast('Error al iniciar sesión. Intenta con tu contraseña', 'danger');
+        }
       } else {
         await this.showToast('No se pudo autenticar', 'danger');
       }
@@ -362,6 +385,7 @@ export class LoginComponent implements OnInit {
           role: 'destructive',
           handler: () => {
             this.biometricService.clearCredentials();
+            localStorage.removeItem('biometric_temp_pass');
             this.hasBiometricCredentials = false;
             this.showToast('Biometría desactivada', 'success');
           }

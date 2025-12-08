@@ -96,6 +96,12 @@ export class LoginComponent implements OnInit {
         this.userId = response.userId;
         this.showVerificationStep = true;
         this.turnstileToken = ''; // Reset token
+        
+        // Renderizar el Turnstile del paso 2 después de que el DOM se actualice
+        setTimeout(() => {
+          this.renderVerifyTurnstile();
+        }, 100);
+        
         await this.showToast(response.message || 'Código enviado a tu correo', 'success');
       }
 
@@ -180,6 +186,43 @@ export class LoginComponent implements OnInit {
     setTimeout(() => {
       (window as any).turnstile?.reset('.cf-turnstile');
     }, 100);
+  }
+
+  /**
+   * Renderizar widget de Turnstile para el paso de verificación
+   */
+  renderVerifyTurnstile() {
+    const container = document.getElementById('turnstile-verify-container');
+    
+    if (!container) {
+      console.error('❌ Contenedor de Turnstile no encontrado');
+      return;
+    }
+
+    // Verificar si Turnstile está disponible
+    if (!(window as any).turnstile) {
+      console.error('❌ Script de Turnstile no cargado');
+      setTimeout(() => this.renderVerifyTurnstile(), 500);
+      return;
+    }
+
+    // Limpiar contenedor
+    container.innerHTML = '';
+
+    // Renderizar widget
+    try {
+      (window as any).turnstile.render('#turnstile-verify-container', {
+        sitekey: '0x4AAAAAACFTGe-2VlmzzEzV',
+        callback: (token: string) => {
+          this.turnstileTokenVerify = token;
+          console.log('✅ Turnstile token (verify) obtenido');
+        },
+        theme: 'light'
+      });
+      console.log('✅ Widget de verificación renderizado');
+    } catch (error) {
+      console.error('❌ Error al renderizar Turnstile:', error);
+    }
   }
 
 

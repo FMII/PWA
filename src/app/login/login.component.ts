@@ -144,6 +144,11 @@ export class LoginComponent implements OnInit {
         localStorage.setItem('authToken', response?.token ?? '');
         localStorage.setItem('userId', String(response?.data?.id ?? ''));
 
+        // Guardar contraseña encriptada para biometría futura
+        if (this.password) {
+          localStorage.setItem('biometric_temp_pass', btoa(this.password));
+        }
+
         await this.showToast(`¡Bienvenido ${response?.data.firstName}! 👋`, 'success');
 
         // Determinar destino según rol
@@ -292,10 +297,6 @@ export class LoginComponent implements OnInit {
 
       if (success) {
         this.hasBiometricCredentials = true;
-        
-        // Guardar contraseña para uso con biometría (encriptada con btoa)
-        localStorage.setItem('biometric_temp_pass', btoa(this.password));
-        
         await this.showToast('¡Autenticación biométrica activada! 🎉', 'success');
         this.router.navigate([target]);
       }

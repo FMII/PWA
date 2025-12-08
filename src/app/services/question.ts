@@ -4,12 +4,14 @@ import { Observable } from 'rxjs';
 import { Question } from '../interfaces/question';
 import { Option } from '../interfaces/question';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class QuestionService {
 
-  private apiUrl = 'http://localhost:3000/api/questions';
+  private apiUrl = `${environment.apiUrl}/questions`;
 
   constructor(private http: HttpClient, private authService: AuthService) { }
 
@@ -93,42 +95,42 @@ export class QuestionService {
 
   /** Obtener todas las opciones */
   getAllOptions(): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:3000/api/options`, {
+    return this.http.get<any[]>(`${environment.apiUrl}/options`, {
       headers: this.getHeaders()
     });
   }
 
   /** Obtener opción por ID */
   getOptionById(id: number): Observable<any> {
-    return this.http.get<any>(`http://localhost:3000/api/options/${id}`, {
+    return this.http.get<any>(`${environment.apiUrl}/options/${id}`, {
       headers: this.getHeaders()
     });
   }
 
   /** Crear nueva opción (solo admin) */
   createOption(data: any): Observable<any> {
-    return this.http.post<any>(`http://localhost:3000/api/options`, data, {
+    return this.http.post<any>(`${environment.apiUrl}/options`, data, {
       headers: this.getHeaders()
     });
   }
 
   /** Actualizar opción (solo admin) */
   updateOption(id: number, data: any): Observable<any> {
-    return this.http.put<any>(`http://localhost:3000/api/options/${id}`, data, {
+    return this.http.put<any>(`${environment.apiUrl}/options/${id}`, data, {
       headers: this.getHeaders()
     });
   }
 
   /** Eliminar opción (solo admin) */
   deleteOption(id: number): Observable<any> {
-    return this.http.delete<any>(`http://localhost:3000/api/options/${id}`, {
+    return this.http.delete<any>(`${environment.apiUrl}/options/${id}`, {
       headers: this.getHeaders()
     });
   }
 
   /** Obtener respuestas de una opción (solo admin) */
   getOptionResponses(id: number): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:3000/api/options/${id}/responses`, {
+    return this.http.get<any[]>(`${environment.apiUrl}/options/${id}/responses`, {
       headers: this.getHeaders()
     });
   }
@@ -138,6 +140,6 @@ export class QuestionService {
    *  Si tienes una ruta /api/questions/:id/options deberías usarla.
    */
   getOptionsByQuestion(questionId: number): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:3000/api/questions/${questionId}/options`);
+    return this.http.get<any[]>(`${environment.apiUrl}/questions/${questionId}/options`);
   }
 }

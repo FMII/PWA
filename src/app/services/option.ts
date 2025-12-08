@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Option {
 
-  private apiUrl = 'http://localhost:3000/api/options';
+  private apiUrl = `${environment.apiUrl}/options`;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 private getHeaders(): HttpHeaders {
@@ -52,6 +53,6 @@ private getHeaders(): HttpHeaders {
    *  Si tienes una ruta /api/questions/:id/options deberías usarla.
    */
   getOptionsByQuestion(questionId: number): Observable<any[]> {
-    return this.http.get<any[]>(`http://localhost:3000/api/questions/${questionId}/options`);
+    return this.http.get<any[]>(`${environment.apiUrl}/questions/${questionId}/options`);
   }
 }

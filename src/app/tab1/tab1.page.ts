@@ -371,6 +371,17 @@ export class Tab1Page implements OnInit {
     return;
   }
 
+  // Validar que haya preguntas
+  if (!this.pollQuestions || this.pollQuestions.length === 0) {
+    const alert = await this.alertController.create({
+      header: '⚠️ Encuesta sin preguntas',
+      message: 'Esta encuesta no tiene preguntas para contestar.',
+      buttons: ['OK'],
+    });
+    await alert.present();
+    return;
+  }
+
   // Validar que todas las preguntas estén contestadas
   const validation = this.validateAllQuestionsAnswered();
   if (!validation.valid) {

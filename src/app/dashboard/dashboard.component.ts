@@ -140,9 +140,28 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       const descriptionEl = document.getElementById("description") as HTMLTextAreaElement;
       const statusEl = document.getElementById("status") as HTMLSelectElement;
 
+      // Validaciones
+      if (!titleEl.value.trim()) {
+        alert("⚠️ El título de la encuesta es obligatorio");
+        titleEl.focus();
+        return;
+      }
+
+      if (titleEl.value.trim().length < 3) {
+        alert("⚠️ El título debe tener al menos 3 caracteres");
+        titleEl.focus();
+        return;
+      }
+
+      if (!statusEl.value) {
+        alert("⚠️ Debes seleccionar un estado (Activa o Cerrada)");
+        statusEl.focus();
+        return;
+      }
+
       const pollData: any = {
-        title: titleEl.value,
-        description: descriptionEl.value,
+        title: titleEl.value.trim(),
+        description: descriptionEl.value.trim(),
         status: statusEl.value,
       };
 

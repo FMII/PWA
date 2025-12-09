@@ -52,6 +52,14 @@ export class Tab3Page implements OnInit {
     }
 
     this.loadUserPolls(this.currentUser.id);
+    
+    // Suscribirse a actualizaciones de encuestas
+    this.pollsService.pollsUpdated$.subscribe((updated) => {
+      if (updated && this.currentUser) {
+        console.log('🔄 Encuestas actualizadas (historial), recargando...');
+        this.loadUserPolls(this.currentUser.id);
+      }
+    });
   }
 
   /**

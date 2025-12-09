@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { Poll } from '../interfaces/poll';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
@@ -11,6 +11,10 @@ import { environment } from '../../environments/environment';
 export class Polls {
 
   private apiUrl = `${environment.apiUrl}/polls`;
+  
+  // Subject para notificar cuando hay cambios en las encuestas
+  private pollsUpdated = new BehaviorSubject<boolean>(false);
+  public pollsUpdated$ = this.pollsUpdated.asObservable();
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -69,5 +73,13 @@ export class Polls {
   // GET /api/polls/user/:userId
   getPollsByUser(userId: number): Observable<Poll[]> {
     return this.http.get<Poll[]>(`${this.apiUrl}/user/${userId}`, { headers: this.getHeaders() });
+  }
+
+  /**
+   * Notificar que las encuestas han sido actualizadas
+   * Útil cuando se crea una nueva encuesta o llega una notificación
+   */
+  notifyPollsUpdated() {
+    this.pollsUpdated.next(true);
   }
 }

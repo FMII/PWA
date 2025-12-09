@@ -59,6 +59,14 @@ export class Tab1Page implements OnInit {
     // queue processing moved to AppComponent (global)
     // actualizar contador de pendientes
     this.updatePendingCount();
+    
+    // Suscribirse a actualizaciones de encuestas
+    this.pollsService.pollsUpdated$.subscribe((updated) => {
+      if (updated) {
+        console.log('🔄 Encuestas actualizadas, recargando...');
+        this.loadPolls();
+      }
+    });
   }
 
   /**

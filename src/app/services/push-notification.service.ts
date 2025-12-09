@@ -4,6 +4,7 @@ import { SwPush } from '@angular/service-worker';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Platform } from '@ionic/angular';
+import { Polls } from './polls';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +15,36 @@ export class PushNotificationService {
   constructor(
     private http: HttpClient,
     private swPush: SwPush,
-    private platform: Platform
-  ) {}
+    private platform: Platform,
+    private pollsService: Polls
+  ) {
+    // Escuchar mensajes push
+    this.listenToPushMessages();
+  }
+
+  /**
+   * Escuchar notificaciones push y notificar cambios
+   */
+  private listenToPushMessages() {
+    if (this.swPush.isEnabled) {
+      this.swPush.messages.subscribe((message: any) => {
+        console.log('📬 Push notification recibida:', message);
+        
+        // Si es una notificación de nueva encuesta, actualizar lista
+        if (message?.notification?.data?.type === 'new-poll' || 
+            message?.data?.type === 'new-poll') {
+          console.log('🔔 Nueva encuesta disponible, notificando...');
+          this.pollsService.notifyPollsUpdated();
+        }
+      });
+
+      this.swPush.notificationClicks.subscribe((click: any) => {
+        console.log('🖱️ Click en notificación:', click);
+        // Aquí podrías navegar a la encuesta específica si tienes el ID
+        this.pollsService.notifyPollsUpdated();
+      });
+    }
+  }
 
   async initialize() {
     if (!this.swPush.isEnabled) {

@@ -3,7 +3,8 @@ import { AlertController, ToastController } from '@ionic/angular';
 import {
   IonHeader, IonToolbar, IonTitle, IonContent, IonRow, IonCol, IonGrid, IonText, IonCard,
   IonCardHeader, IonCardTitle, IonCardContent, IonBadge, IonButton, IonSpinner,
-  IonModal, IonButtons, IonItem, IonLabel, IonList, IonRadio, IonInput, IonCheckbox, IonRadioGroup
+  IonModal, IonButtons, IonItem, IonLabel, IonList, IonRadio, IonInput, IonCheckbox, IonRadioGroup,
+  IonRefresher, IonRefresherContent
 } from '@ionic/angular/standalone';
 import { ExploreContainerComponent } from '../explore-container/explore-container.component';
 import { Polls } from '../services/polls';
@@ -27,6 +28,7 @@ import { firstValueFrom } from 'rxjs';
     IonCardHeader, IonCardTitle, IonCardContent, IonBadge, IonButton, IonSpinner,
     ExploreContainerComponent, FormsModule, RouterModule, DatePipe, NgIf, NgFor,
     IonModal, IonButtons, IonItem, IonLabel, IonList, IonRadio, IonInput, IonCheckbox, IonRadioGroup,
+    IonRefresher, IonRefresherContent
   ],
 })
 export class Tab1Page implements OnInit {
@@ -66,10 +68,11 @@ export class Tab1Page implements OnInit {
         console.log('🔄 Encuestas actualizadas, limpiando caché y recargando...');
         // Limpiar caché antes de recargar para forzar datos frescos del servidor
         this.offlineData.clearPolls().then(() => {
-          this.loadPolls();
+          console.log('✅ Caché limpiado, recargando desde servidor...');
+          this.loadPolls(true); // true = bypassCache
         }).catch((err) => {
-          console.error('Error limpiando caché:', err);
-          this.loadPolls(); // Recargar de todas formas
+          console.error('❌ Error limpiando caché:', err);
+          this.loadPolls(true); // Recargar de todas formas con bypass
         });
       }
     });
@@ -82,6 +85,23 @@ export class Tab1Page implements OnInit {
   ionViewWillEnter() {
     this.loadPolls();
     this.updatePendingCount();
+  }
+
+  /**
+   * Manejador de pull-to-refresh
+   * Limpia el caché y recarga datos frescos del servidor
+   */
+  async handleRefresh(event: any) {
+    console.log('🔄 Pull-to-refresh: Limpiando caché...');
+    try {
+      await this.offlineData.clearPolls();
+      console.log('✅ Caché limpiado por pull-to-refresh');
+      await this.loadPolls(true); // true = bypassCache
+    } catch (error) {
+      console.error('❌ Error en pull-to-refresh:', error);
+    } finally {
+      event.target.complete();
+    }
   }
 
   async checkAndRequestNotifications() {
@@ -141,14 +161,14 @@ export class Tab1Page implements OnInit {
     this.answeredPolls = saved ? JSON.parse(saved) : [];
   }
   */
-  async loadPolls() {
+  async loadPolls(bypassCache = false) {
   const user = this.authService.getCurrentUser();
   if (!user?.id) return;
 
   this.loading = true;
-  console.log('📊 Cargando encuestas para usuario:', user.id);
+  console.log('📊 Cargando encuestas para usuario:', user.id, bypassCache ? '(BYPASS CACHE)' : '');
 
-  this.pollsService.getPollsForUser(user.id).subscribe({
+  this.pollsService.getPollsForUser(user.id, bypassCache).subscribe({
     next: async (res) => {
       console.log('✅ Respuesta del servidor:', res);
       const list = (res || []).filter(p => !p.completed && p.questions && p.questions.length > 0);

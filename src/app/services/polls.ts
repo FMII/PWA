@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { Poll } from '../interfaces/poll';
 import { AuthService } from './auth.service';
@@ -31,8 +31,20 @@ export class Polls {
   }
 
   // GET /api/polls (El backend detecta el usuario por el token y devuelve el estado 'completed')
-  getPollsForUser(userId: number): Observable<Poll[]> {
-    return this.http.get<Poll[]>(this.apiUrl, { headers: this.getHeaders() });
+  getPollsForUser(userId: number, bypassCache = false): Observable<Poll[]> {
+    let headers = this.getHeaders();
+    let params = new HttpParams();
+    
+    // Si bypassCache es true, agregar headers para forzar datos frescos
+    if (bypassCache) {
+      headers = headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+                       .set('Pragma', 'no-cache')
+                       .set('Expires', '0');
+      // Agregar timestamp para evitar cache del navegador
+      params = params.set('_t', Date.now().toString());
+    }
+    
+    return this.http.get<Poll[]>(this.apiUrl, { headers, params });
   }
 
   // GET /api/polls/:id

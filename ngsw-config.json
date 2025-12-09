@@ -29,19 +29,20 @@
   ],
   "dataGroups": [
     {
-      "name": "api-cache",
+      "name": "api-polls-fresh",
       "urls": [
-        "https://smartentry.space/api/**"
+        "https://smartentry.space/api/polls",
+        "https://smartentry.space/api/polls/**"
       ],
       "cacheConfig": {
-        "maxSize": 100,
-        "maxAge": "1d",
+        "maxSize": 50,
+        "maxAge": "5m",
         "timeout": "10s",
-        "strategy": "performance"
+        "strategy": "freshness"
       }
     },
     {
-      "name": "api-fresh",
+      "name": "api-auth-fresh",
       "urls": [
         "https://smartentry.space/api/users",
         "https://smartentry.space/api/auth/**"
@@ -51,6 +52,18 @@
         "maxAge": "1h",
         "timeout": "5s",
         "strategy": "freshness"
+      }
+    },
+    {
+      "name": "api-cache",
+      "urls": [
+        "https://smartentry.space/api/**"
+      ],
+      "cacheConfig": {
+        "maxSize": 100,
+        "maxAge": "1d",
+        "timeout": "10s",
+        "strategy": "performance"
       }
     }
   ]

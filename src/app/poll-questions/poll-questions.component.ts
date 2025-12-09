@@ -97,6 +97,12 @@ export class PollQuestionsComponent implements OnInit {
         return;
       }
 
+      // Validar que preguntas de opción única o múltiple tengan al menos 2 opciones
+      if ((this.newQuestion.type === 'single-choice' || this.newQuestion.type === 'multiple-choice') && options.length < 2) {
+        alert("⚠️ Las preguntas de opción única o múltiple deben tener al menos 2 opciones.");
+        return;
+      }
+
       payload.options = { create: options };
     }
 

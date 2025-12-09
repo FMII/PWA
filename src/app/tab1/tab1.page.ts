@@ -331,6 +331,32 @@ export class Tab1Page implements OnInit {
     }
   }
 
+  /**
+   * Validar que todas las preguntas estén contestadas
+   */
+  validateAllQuestionsAnswered(): { valid: boolean; unanswered: string[] } {
+    const unanswered: string[] = [];
+
+    for (const q of this.pollQuestions) {
+      let isAnswered = false;
+
+      if (q.type === 'open') {
+        isAnswered = q.answer && q.answer.trim().length > 0;
+      } else if (q.type === 'yes-no' || q.type === 'single-choice') {
+        isAnswered = q.answer !== null && q.answer !== undefined && q.answer !== '';
+      } else if (q.type === 'multiple-choice') {
+        const selected = q.options?.filter((o: any) => o.selected);
+        isAnswered = selected && selected.length > 0;
+      }
+
+      if (!isAnswered) {
+        unanswered.push(q.title || 'Pregunta sin título');
+      }
+    }
+
+    return { valid: unanswered.length === 0, unanswered };
+  }
+
   async submitResponses() {
   const user = this.authService.getCurrentUser();
   const userId = user?.id;
@@ -339,6 +365,18 @@ export class Tab1Page implements OnInit {
     const alert = await this.alertController.create({
       header: 'Error',
       message: 'No se pudo identificar al usuario. Por favor inicia sesión de nuevo.',
+      buttons: ['OK'],
+    });
+    await alert.present();
+    return;
+  }
+
+  // Validar que todas las preguntas estén contestadas
+  const validation = this.validateAllQuestionsAnswered();
+  if (!validation.valid) {
+    const alert = await this.alertController.create({
+      header: '⚠️ Preguntas sin contestar',
+      message: `Por favor contesta todas las preguntas antes de enviar:<br><br>${validation.unanswered.map(q => `• ${q}`).join('<br>')}`,
       buttons: ['OK'],
     });
     await alert.present();

@@ -27,6 +27,12 @@
       }
     }
   ],
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/**/*__*",
+    "!/**/*__*/**"
+  ],
   "dataGroups": [
     {
       "name": "api-polls-fresh",

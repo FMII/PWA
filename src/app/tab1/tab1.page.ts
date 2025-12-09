@@ -376,7 +376,7 @@ export class Tab1Page implements OnInit {
   if (!validation.valid) {
     const alert = await this.alertController.create({
       header: '⚠️ Preguntas sin contestar',
-      message: `Por favor contesta todas las preguntas antes de enviar:<br><br>${validation.unanswered.map(q => `• ${q}`).join('<br>')}`,
+      message: `Por favor contesta todas las preguntas antes de enviar.`,
       buttons: ['OK'],
     });
     await alert.present();

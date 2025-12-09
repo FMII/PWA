@@ -54,6 +54,15 @@ export class Tab3Page implements OnInit {
     this.loadUserPolls(this.currentUser.id);
   }
 
+  /**
+   * Se ejecuta cada vez que el usuario entra a esta pestaña
+   */
+  ionViewWillEnter() {
+    if (this.currentUser) {
+      this.loadUserPolls(this.currentUser.id);
+    }
+  }
+
   loadUserPolls(userId: number) {
     this.loading = true;
 

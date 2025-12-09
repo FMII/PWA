@@ -61,6 +61,15 @@ export class Tab1Page implements OnInit {
     this.updatePendingCount();
   }
 
+  /**
+   * Se ejecuta cada vez que el usuario entra a esta pestaña
+   * Útil para actualizar las encuestas cuando se crea una nueva
+   */
+  ionViewWillEnter() {
+    this.loadPolls();
+    this.updatePendingCount();
+  }
+
   async checkAndRequestNotifications() {
     try {
       // Esperar un poco para no bloquear la carga inicial

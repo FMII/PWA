@@ -63,8 +63,14 @@ export class Tab1Page implements OnInit {
     // Suscribirse a actualizaciones de encuestas
     this.pollsService.pollsUpdated$.subscribe((updated) => {
       if (updated) {
-        console.log('🔄 Encuestas actualizadas, recargando...');
-        this.loadPolls();
+        console.log('🔄 Encuestas actualizadas, limpiando caché y recargando...');
+        // Limpiar caché antes de recargar para forzar datos frescos del servidor
+        this.offlineData.clearPolls().then(() => {
+          this.loadPolls();
+        }).catch((err) => {
+          console.error('Error limpiando caché:', err);
+          this.loadPolls(); // Recargar de todas formas
+        });
       }
     });
   }
@@ -140,12 +146,16 @@ export class Tab1Page implements OnInit {
   if (!user?.id) return;
 
   this.loading = true;
+  console.log('📊 Cargando encuestas para usuario:', user.id);
 
   this.pollsService.getPollsForUser(user.id).subscribe({
     next: async (res) => {
+      console.log('✅ Respuesta del servidor:', res);
       const list = (res || []).filter(p => !p.completed && p.questions && p.questions.length > 0);
+      console.log('📋 Encuestas filtradas (activas con preguntas):', list.length, list);
       this.polls = list;
         await this.offlineData.savePolls(list); // guardamos cache
+        console.log('💾 Caché actualizado con', list.length, 'encuestas');
 
         // intentar asignar thumbnails cacheadas o empezar a cachearlas
         for (const p of this.polls) {

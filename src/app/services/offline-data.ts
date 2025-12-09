@@ -99,6 +99,18 @@ export class OfflineData {
     return all.map(p => ({ ...p, stale: (Date.now() - p.fetchedAt) > maxAgeMs }));
   }
 
+  /**
+   * Limpiar todas las encuestas del caché
+   * Útil cuando se notifica que hay nuevas encuestas
+   */
+  async clearPolls() {
+    const db = await this.dbPromise;
+    const tx = db.transaction('polls', 'readwrite');
+    await tx.store.clear();
+    await tx.done;
+    console.log('🗑️ Caché de encuestas limpiado');
+  }
+
   async cacheThumbnail(pollId: number, url: string) {
     try {
       const resp = await fetch(url);

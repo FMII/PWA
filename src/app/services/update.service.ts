@@ -4,7 +4,7 @@ import { AlertController, Platform } from '@ionic/angular';
 
 @Injectable({ providedIn: 'root' })
 export class UpdateService {
-  private readonly CHECK_INTERVAL = 1000 * 60 * 60 * 4; // 4 horas
+  private readonly CHECK_INTERVAL = 1000 * 60 * 15; // 15 minutos (más frecuente)
 
   constructor(
     private swUpdate: SwUpdate,
@@ -16,27 +16,45 @@ export class UpdateService {
       return;
     }
 
+    console.log('✅ UpdateService inicializado - Chequeos automáticos activos');
+
     // ✅ Nueva API Angular 16–20
     this.swUpdate.versionUpdates.subscribe(async (event) => {
       console.log('SW Event:', event);
 
       if (event.type === 'VERSION_READY') {
+        console.log('🔄 Nueva versión detectada');
         await this.promptUserToUpdate();
       }
     });
 
-    // Opcional: al volver del background
+    // Chequeo cuando la app vuelve de estar oculta (cambio de pestaña, lock screen, etc)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        console.log('👀 App visible, chequeando actualizaciones...');
+        this.checkForUpdate();
+      }
+    });
+
+    // Opcional: al volver del background en móvil
     try {
       (this.platform as any).resume?.subscribe(() => {
+        console.log('📱 App resumed, chequeando actualizaciones...');
         this.checkForUpdate();
       });
     } catch (_) {}
 
-    // Chequeos periódicos
-    setInterval(() => this.checkForUpdate(), this.CHECK_INTERVAL);
+    // Chequeos periódicos cada 15 minutos
+    setInterval(() => {
+      console.log('⏰ Chequeo periódico de actualizaciones...');
+      this.checkForUpdate();
+    }, this.CHECK_INTERVAL);
 
-    // Chequeo inicial
-    this.checkForUpdate();
+    // Chequeo inicial al cargar
+    setTimeout(() => {
+      console.log('🚀 Chequeo inicial de actualizaciones...');
+      this.checkForUpdate();
+    }, 5000); // Esperar 5 segundos después de cargar
   }
 
   // Revisa si existe una nueva versión

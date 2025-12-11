@@ -16,9 +16,12 @@ export class AppComponent implements OnInit {
     private updateService: UpdateService,
     private offlineData: OfflineData,
     private answerService: Answer,
-    private authService: AuthService
-    , private toastCtrl: ToastController
-  ) { }
+    private authService: AuthService,
+    private toastCtrl: ToastController
+  ) {
+    // Inicializar UpdateService para que funcione globalmente
+    // No necesita hacer nada aquí, solo inyectarlo activa su constructor
+  }
 
   async ngOnInit(): Promise<void> {
     // Procesar la cola cuando volvamos a conectar

@@ -110,7 +110,34 @@ export class LoginComponent implements OnInit {
 
     } catch (error: any) {
       console.error('Error al iniciar sesión:', error);
-      const errorMessage = error.error?.error || error.error?.message || 'Credenciales incorrectas';
+      
+      // Intentar extraer el mensaje de error en diferentes formatos
+      let errorMessage = 'Credenciales incorrectas';
+      
+      if (error.error) {
+        // Si hay un array de errores de validación (express-validator)
+        if (Array.isArray(error.error.errors) && error.error.errors.length > 0) {
+          errorMessage = error.error.errors.map((e: any) => e.msg).join(', ');
+        }
+        // Si hay un mensaje de error directo
+        else if (error.error.error) {
+          errorMessage = error.error.error;
+        }
+        // Si hay un mensaje simple
+        else if (error.error.message) {
+          errorMessage = error.error.message;
+        }
+        // Si error.error es un string directamente
+        else if (typeof error.error === 'string') {
+          errorMessage = error.error;
+        }
+      }
+      // Si error.message existe
+      else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      console.log('📝 Mensaje de error capturado:', errorMessage);
       await this.showToast(errorMessage, 'danger');
       
       // Reset token y re-renderizar Turnstile
@@ -170,7 +197,34 @@ export class LoginComponent implements OnInit {
 
     } catch (error: any) {
       console.error('Error al verificar código:', error);
-      const errorMessage = error.error?.error || error.error?.message || 'Código incorrecto';
+      
+      // Intentar extraer el mensaje de error en diferentes formatos
+      let errorMessage = 'Código incorrecto';
+      
+      if (error.error) {
+        // Si hay un array de errores de validación (express-validator)
+        if (Array.isArray(error.error.errors) && error.error.errors.length > 0) {
+          errorMessage = error.error.errors.map((e: any) => e.msg).join(', ');
+        }
+        // Si hay un mensaje de error directo
+        else if (error.error.error) {
+          errorMessage = error.error.error;
+        }
+        // Si hay un mensaje simple
+        else if (error.error.message) {
+          errorMessage = error.error.message;
+        }
+        // Si error.error es un string directamente
+        else if (typeof error.error === 'string') {
+          errorMessage = error.error;
+        }
+      }
+      // Si error.message existe
+      else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      console.log('📝 Mensaje de error capturado:', errorMessage);
       await this.showToast(errorMessage, 'danger');
       
       // Reset token y re-renderizar Turnstile

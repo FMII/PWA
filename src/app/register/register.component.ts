@@ -178,11 +178,41 @@ export class RegisterComponent implements OnInit {
 
     } catch (error: any) {
       console.error('Error al registrar usuario:', error);
-      const errorMessage = error.error?.error || error.error?.message || 'Error al crear la cuenta';
+      
+      // Intentar extraer el mensaje de error en diferentes formatos
+      let errorMessage = 'Error al crear la cuenta';
+      
+      if (error.error) {
+        // Si hay un array de errores de validación (express-validator)
+        if (Array.isArray(error.error.errors) && error.error.errors.length > 0) {
+          errorMessage = error.error.errors.map((e: any) => e.msg).join(', ');
+        }
+        // Si hay un mensaje de error directo
+        else if (error.error.error) {
+          errorMessage = error.error.error;
+        }
+        // Si hay un mensaje simple
+        else if (error.error.message) {
+          errorMessage = error.error.message;
+        }
+        // Si error.error es un string directamente
+        else if (typeof error.error === 'string') {
+          errorMessage = error.error;
+        }
+      }
+      // Si error.message existe
+      else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      console.log('📝 Mensaje de error capturado:', errorMessage);
       await this.showToast(errorMessage, 'danger');
-      // Reset Turnstile en caso de error
+      
+      // Reset Turnstile y re-renderizar widget
       this.turnstileToken = '';
-      (window as any).turnstile?.reset();
+      setTimeout(() => {
+        this.renderTurnstile();
+      }, 100);
     } finally {
       this.isLoading = false;
     }
